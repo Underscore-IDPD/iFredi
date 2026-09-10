@@ -21,6 +21,7 @@ class ChatViewModel : ViewModel() {
         private const val MAX_MESSAGE_LENGTH = 4000
         private const val TYPING_DEBOUNCE_MS = 3000L
     }
+
     private val _messages = MutableLiveData<List<Message>>()
     val messages: LiveData<List<Message>> = _messages
 
@@ -48,7 +49,7 @@ class ChatViewModel : ViewModel() {
     private var chatListener: ListenerRegistration? = null
     private var typingListener: ListenerRegistration? = null
 
-    // Inicializa el ViewModel con el ID del usuario actual y el ID del chat.
+    // Inicializa el ViewModel con el ID del usuario actual y el ID del chat
     fun initialize(userId: String, chatId: String) {
         this.currentUserId = userId
         this.chatId = chatId
@@ -82,7 +83,7 @@ class ChatViewModel : ViewModel() {
      * Mensajería
      */
 
-    // Envía un mensaje de texto o imagen al chat.
+    // Envía un mensaje de texto o imagen al chat
     fun sendMessage(text: String, imageUrl: String? = null) {
         val trimmedText = text.trim()
 
@@ -121,7 +122,7 @@ class ChatViewModel : ViewModel() {
         }
     }
 
-    // Notifica que el usuario está escribiendo
+    // Notifica que el usuario está escribiendo, con debounce de 3s
     fun sendTypingIndicator() {
         if (currentUserId.isEmpty() || chatId.isEmpty()) return
 
@@ -134,6 +135,19 @@ class ChatViewModel : ViewModel() {
                     repository.updateTypingStatus(chatId, currentUserId, false)
                 }
             }, TYPING_DEBOUNCE_MS)
+        }
+    }
+
+    // Elimina un mensaje, validando primero que pertenezca al usuario actual
+    fun deleteMessage(message: Message) {
+        if (!message.isOwn(currentUserId)) {
+            _errorMessage.value = "Solo puedes eliminar tus propios mensajes"
+            return
+        }
+        repository.deleteMessage(chatId, message.id) { success ->
+            if (!success) {
+                _errorMessage.value = "No se pudo eliminar el mensaje"
+            }
         }
     }
 
