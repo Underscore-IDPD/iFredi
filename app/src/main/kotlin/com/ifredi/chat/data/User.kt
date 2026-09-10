@@ -13,9 +13,10 @@ data class User(
     val createdAt: Long = 0L,
     val updatedAt: Long = 0L
 ) {
-
+    // Verifica si el usuario está actualmente en línea
     fun isActive(): Boolean = isOnline
 
+    // Retorna las iniciales del nombre para usar en el avatar
     fun getInitials(): String {
         if (displayName.isBlank()) return "?"
         return displayName
