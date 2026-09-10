@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "672637427014",
+    "project_id": "ifredi-230b9",
+    "storage_bucket": "ifredi-230b9.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:672637427014:android:ce20ca32827be1fee49947",
+        "android_client_info": {
+          "package_name": "com.ifredi.chat"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDOcAHsXnvWlg1Z5qJ2mxthAgAFHVIYlvs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
