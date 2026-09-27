@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="primary">#3385FF</color>
+    <color name="primary_light">#66A3FF</color>
+    <color name="primary_lighter">#99C2FF</color>
+    <color name="primary_lightest">#E5F0FF</color>
+
+    <color name="error">#FF333A</color>
+    <color name="error_light">#FF999C</color>
+
+    <color name="success">#55FF33</color>
+    <color name="success_light">#AAFF99</color>
+
+    <color name="warning">#FFDA33</color>
+    <color name="warning_light">#FFE366</color>
+
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="gray_50">#F9F9F9</color>
+    <color name="gray_100">#F5F5F5</color>
+    <color name="gray_200">#EEEEEE</color>
+    <color name="gray_500">#9E9E9E</color>
+    <color name="gray_700">#757575</color>
+    <color name="gray_900">#212121</color>
+
+</resources>
