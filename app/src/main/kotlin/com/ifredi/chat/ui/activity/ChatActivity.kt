@@ -7,7 +7,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
+import com.ifredi.chat.R
 import com.ifredi.chat.databinding.ActivityChatBinding
 import com.ifredi.chat.ui.adapter.MessageAdapter
 import com.ifredi.chat.ui.viewmodel.ChatViewModel
@@ -86,12 +88,27 @@ class ChatActivity : AppCompatActivity() {
      * Setup inicial
      */
 
-    // Configura el AppBarLayout con el nombre del usuario
+    // Configura el AppBarLayout con el nombre y avatar de la otra persona
     private fun setupToolbar() {
         setSupportActionBar(binding.toolbar)
+        supportActionBar?.setDisplayShowTitleEnabled(false)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        binding.toolbar.title = chatPartnerName.ifBlank { "Chat" }
+
+        binding.tvPartnerName.text = chatPartnerName.ifBlank { "Chat" }
+        binding.tvPartnerStatus.text = getString(R.string.offline)
         binding.toolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
+    }
+
+    // Carga el avatar de la otra persona
+    private fun bindPartnerAvatar(imageUrl: String?) {
+        if (!imageUrl.isNullOrBlank()) {
+            Glide.with(this)
+                .load(imageUrl)
+                .centerCrop()
+                .placeholder(R.drawable.ic_person)
+                .error(R.drawable.ic_person)
+                .into(binding.ivPartnerAvatar)
+        }
     }
 
     // Inicializa el adapter y el layout manager del RecyclerView
@@ -135,7 +152,8 @@ class ChatActivity : AppCompatActivity() {
         }
 
         viewModel.chat.observe(this) { chat ->
-            binding.toolbar.subtitle = chat.getDisplayName(currentUserId)
+            binding.tvPartnerName.text = chat.getDisplayName(currentUserId)
+            // El avatar real
         }
     }
 
