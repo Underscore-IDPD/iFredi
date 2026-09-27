@@ -73,6 +73,19 @@ class MessageAdapter(
             binding.tvReceivedTime.text = message.getFormattedTime()
 
             bindImage(message, binding.ivReceivedImage)
+            bindAvatar(message)
+        }
+
+        // Carga la foto de perfil del remitente
+        private fun bindAvatar(message: Message) {
+            if (!message.senderImageUrl.isNullOrBlank()) {
+                Glide.with(binding.ivSenderAvatar.context)
+                    .load(message.senderImageUrl)
+                    .centerCrop()
+                    .placeholder(R.drawable.ic_person)
+                    .error(R.drawable.ic_person)
+                    .into(binding.ivSenderAvatar)
+            }
         }
 
         private fun bindImage(message: Message, imageView: android.widget.ImageView) {

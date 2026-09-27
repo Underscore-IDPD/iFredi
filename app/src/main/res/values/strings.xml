@@ -20,4 +20,16 @@
     <string name="mute_notifications">Silenciar notificaciones</string>
     <string name="block_user">Bloquear usuario</string>
 
+    <string name="login_subtitle">Inicia sesión para continuar</string>
+    <string name="email">Correo electrónico</string>
+    <string name="password">Contraseña</string>
+    <string name="log_in">Iniciar sesión</string>
+    <string name="create_account">¿No tienes cuenta? Regístrate</string>
+
+    <string name="settings_title">Configuración</string>
+    <string name="change_photo">Cambiar foto de perfil</string>
+    <string name="username">Nombre de usuario</string>
+    <string name="accent_color">Color de acento</string>
+    <string name="save">Guardar</string>
+
 </resources>
