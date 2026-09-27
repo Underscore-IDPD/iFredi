@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">IFredi</string>
+
+    <string name="write_message">Escribe un mensaje…</string>
+    <string name="send">Enviar</string>
+    <string name="attach_image">Adjuntar imagen</string>
+
+    <string name="typing">%s está escribiendo…</string>
+    <string name="online">En línea</string>
+    <string name="offline">Desconectado</string>
+    <string name="empty_message">No puedes enviar un mensaje vacío</string>
+
+    <string name="error_sending">No se pudo enviar el mensaje</string>
+    <string name="retry">Reintentar</string>
+
+    <string name="chat_info">Información del chat</string>
+    <string name="clear_history">Limpiar historial</string>
+    <string name="mute_notifications">Silenciar notificaciones</string>
+    <string name="block_user">Bloquear usuario</string>
+
+</resources>

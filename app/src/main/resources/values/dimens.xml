@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="toolbar_height">56dp</dimen>
+    <dimen name="message_bubble_max_width">280dp</dimen>
+    <dimen name="message_bubble_radius">14dp</dimen>
+    <dimen name="message_padding">12dp</dimen>
+    <dimen name="input_height">60dp</dimen>
+    <dimen name="button_size">48dp</dimen>
+    <dimen name="image_size_small">200dp</dimen>
+    <dimen name="spacing_xs">4dp</dimen>
+    <dimen name="spacing_sm">8dp</dimen>
+    <dimen name="spacing_md">12dp</dimen>
+    <dimen name="spacing_lg">16dp</dimen>
+</resources>
