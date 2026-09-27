@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical">
+
+    <com.google.android.material.appbar.AppBarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+        <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/toolbar_height"
+                app:navigationIcon="@drawable/ic_arrow_back"
+                app:titleTextColor="@color/white"
+                app:subtitleTextColor="@color/primary_lightest" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+        <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvMessages"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/primary_lightest"
+                android:clipToPadding="false"
+                android:paddingHorizontal="@dimen/spacing_sm"
+                android:paddingVertical="@dimen/spacing_md" />
+
+        <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:visibility="gone" />
+
+    </FrameLayout>
+
+    <TextView
+            android:id="@+id/tvTypingIndicator"
+            android:layout_width="match_parent"
+            android:layout_height="24dp"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="@dimen/spacing_md"
+            android:textAppearance="@style/TextAppearance.Time"
+            android:textStyle="italic"
+            android:visibility="gone"
+            tools:text="Juan Carlos está escribiendo..." />
+
+    <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="@color/gray_200" />
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/input_height"
+            android:background="@color/white"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="@dimen/spacing_sm">
+
+        <ImageButton
+                android:id="@+id/btnAttachImage"
+                android:layout_width="@dimen/button_size"
+                android:layout_height="@dimen/button_size"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/attach_image"
+                android:src="@drawable/ic_attach_image"
+                app:tint="@color/primary_light" />
+
+        <EditText
+                android:id="@+id/etMessage"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/bg_input_field"
+                android:hint="@string/write_message"
+                android:inputType="textCapSentences|textMultiLine"
+                android:maxLines="4"
+                android:paddingHorizontal="@dimen/spacing_md"
+                android:paddingVertical="@dimen/spacing_sm" />
+
+        <ImageButton
+                android:id="@+id/btnSendMessage"
+                android:layout_width="@dimen/button_size"
+                android:layout_height="@dimen/button_size"
+                android:layout_marginStart="@dimen/spacing_xs"
+                android:background="@drawable/bg_button_send"
+                android:contentDescription="@string/send"
+                android:src="@drawable/ic_send"
+                app:tint="@color/white" />
+
+    </LinearLayout>
+
+</LinearLayout>
