@@ -30,8 +30,6 @@ class ChatRepository {
     /**
      * Mensajes
      */
-
-    // Escucha en tiempo real los mensajes de un chat, ordenados por timestamp descendente
     fun getMessagesRealtime(
         chatId: String,
         callback: (List<Message>) -> Unit
