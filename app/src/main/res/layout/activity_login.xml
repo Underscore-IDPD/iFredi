@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:app="http://schemas.android.com/apk/res-auto"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:background="@color/white"
@@ -8,41 +7,55 @@
               android:orientation="vertical"
               android:padding="@dimen/spacing_lg">
 
+    <ImageView
+        android:id="@+id/logo"
+        android:contentDescription="@string/app_name"
+        android:layout_marginTop="-24dp"
+        android:layout_width="192dp"
+        android:layout_height="192dp"
+        android:layout_marginBottom="@dimen/spacing_lg"
+        android:src="@drawable/dyke" />
+
     <TextView
+        android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/spacing_xs"
-            android:text="@string/app_name"
-            android:textColor="@color/primary"
+            android:text="@string/name_logo"
+            android:fontFamily="@font/neuropol"
             android:textSize="32sp"
             android:textStyle="bold" />
 
     <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="32dp"
+            android:layout_marginBottom="64dp"
             android:text="@string/login_subtitle"
             android:textColor="@color/gray_500"
-            android:textSize="14sp" />
+            android:textSize="20sp" />
 
     <EditText
             android:id="@+id/etEmail"
+            android:autofillHints="emailAddress"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/spacing_md"
             android:background="@drawable/bg_message_input"
             android:hint="@string/email"
             android:inputType="textEmailAddress"
+            android:textSize="20sp"
             android:paddingHorizontal="@dimen/spacing_md"
             android:paddingVertical="@dimen/spacing_sm" />
 
     <EditText
             android:id="@+id/etPassword"
+            android:autofillHints="password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/spacing_lg"
             android:background="@drawable/bg_message_input"
             android:hint="@string/password"
+            android:textSize="20sp"
             android:inputType="textPassword"
             android:paddingHorizontal="@dimen/spacing_md"
             android:paddingVertical="@dimen/spacing_sm" />
@@ -52,6 +65,7 @@
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:background="@drawable/bg_button_send"
+            android:textSize="20sp"
             android:text="@string/log_in"
             android:textColor="@color/white"
             android:textAllCaps="false" />
@@ -60,6 +74,7 @@
             android:id="@+id/tvCreateAccount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textSize="16sp"
             android:layout_marginTop="@dimen/spacing_lg"
             android:text="@string/create_account"
             android:textColor="@color/primary" />

@@ -21,7 +21,7 @@
     <EditText
         android:id="@+id/etSearch"
         android:layout_width="match_parent"
-        android:layout_height="44dp"
+        android:layout_height="48dp"
         android:layout_margin="@dimen/spacing_md"
         android:background="@drawable/bg_input_field"
         android:hint="@string/search_hint"

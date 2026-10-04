@@ -2,7 +2,7 @@
 <resources>
 
     <string name="app_name">iFredi</string>
-
+    <string name="name_logo"><![CDATA[<font color="#0174FF">i</font><font color="#121212">Fredi</font>]]></string>
 
     <string name="search_hint">Buscar personas por nombre o correo</string>
     <string name="no_chats">Aún no tienes conversaciones.\nBusca a alguien para empezar.</string>

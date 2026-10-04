@@ -6,6 +6,9 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.ifredi.chat.databinding.ActivityLoginBinding
+import androidx.core.text.HtmlCompat
+import com.ifredi.chat.R
+
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLoginBinding
@@ -21,6 +24,12 @@ class LoginActivity : AppCompatActivity() {
 
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+
+        binding.title.text = HtmlCompat.fromHtml(
+            getText(R.string.name_logo).toString(),
+            HtmlCompat.FROM_HTML_MODE_COMPACT
+        )
 
         binding.btnLogin.setOnClickListener {
             val email = binding.etEmail.text.toString().trim()
