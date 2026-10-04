@@ -44,4 +44,11 @@
 
     <string name="image">Imagen Completa</string>
 
+    <string name="register_subtitle">Crea tu cuenta para empezar</string>
+    <string name="confirm_password">Confirmar contraseña</string>
+    <string name="register">Crear cuenta</string>
+    <string name="registering">Creando cuenta…</string>
+    <string name="have_account">¿Ya tienes cuenta? Inicia sesión</string>
+    <string name="back">Volver</string>
+
 </resources>

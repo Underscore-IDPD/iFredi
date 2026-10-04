@@ -3,15 +3,49 @@ package com.ifredi.chat.data.repository
 import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.auth.FirebaseAuth
 import com.ifredi.chat.data.User
 
 class UserRepository {
 
     private val db = FirebaseFirestore.getInstance()
+    private val auth = FirebaseAuth.getInstance()
 
     companion object {
         private const val TAG = "UserRepository"
         private const val COLLECTION_USERS = "users"
+    }
+
+    fun registerUser(
+        email: String,
+        password: String,
+        displayName: String,
+        callback: (Result<Unit>) -> Unit
+    ) {
+        auth.createUserWithEmailAndPassword(email, password)
+            .addOnSuccessListener { authResult ->
+                val firebaseUser = authResult.user
+                if (firebaseUser == null) {
+                    callback(Result.failure(IllegalStateException("Usuario nulo tras el registro")))
+                    return@addOnSuccessListener
+                }
+                val now = System.currentTimeMillis()
+                val user = User(
+                    id = firebaseUser.uid,
+                    email = email,
+                    displayName = displayName,
+                    createdAt = now,
+                    updatedAt = now
+                )
+                db.collection(COLLECTION_USERS).document(firebaseUser.uid).set(user)
+                    .addOnSuccessListener { callback(Result.success(Unit)) }
+                    .addOnFailureListener { e ->
+                        Log.e(TAG, "registerUser set error", e)
+                        // Si falla el perfil, se borra la cuenta para no dejarla a medias
+                        firebaseUser.delete().addOnCompleteListener { callback(Result.failure(e)) }
+                    }
+            }
+            .addOnFailureListener { e -> callback(Result.failure(e)) }
     }
 
     fun ensureUserDocument(userId: String, email: String, callback: (Boolean) -> Unit) {

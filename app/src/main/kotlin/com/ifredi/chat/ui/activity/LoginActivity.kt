@@ -54,8 +54,7 @@ class LoginActivity : AppCompatActivity() {
         }
 
         binding.tvCreateAccount.setOnClickListener {
-            // TODO: navegar a RegisterActivity cuando exista
-            Toast.makeText(this, "Pantalla de registro pendiente", Toast.LENGTH_SHORT).show()
+            startActivity(Intent(this, RegisterActivity::class.java))
         }
     }
 
