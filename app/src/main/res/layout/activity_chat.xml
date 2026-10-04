@@ -112,23 +112,25 @@
             android:paddingHorizontal="@dimen/spacing_sm">
 
         <ImageButton
-                android:id="@+id/btnAttachImage"
-                android:layout_width="@dimen/button_size"
-                android:layout_height="@dimen/button_size"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@string/attach_image"
-                android:src="@drawable/ic_attach_image"
-                app:tint="@color/primary_light" />
+            android:id="@+id/btnAttachImage"
+            android:layout_width="@dimen/button_size"
+            android:layout_height="@dimen/button_size"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/attach_image"
+            android:src="@drawable/ic_attach_image"
+            app:tint="@color/primary_light" />
 
         <EditText
                 android:id="@+id/etMessage"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="48dp"
                 android:layout_weight="1"
+                android:autofillHints=""
                 android:background="@drawable/bg_input_field"
                 android:hint="@string/write_message"
                 android:inputType="textCapSentences|textMultiLine"
                 android:maxLines="4"
+                android:textSize="16sp"
                 android:paddingHorizontal="@dimen/spacing_md"
                 android:paddingVertical="@dimen/spacing_sm" />
 

@@ -8,14 +8,22 @@ import com.ifredi.chat.data.Chat
 import com.ifredi.chat.data.Message
 import com.ifredi.chat.data.MessageStatus
 import com.ifredi.chat.data.MessageType
+import com.ifredi.chat.data.User
 import com.ifredi.chat.data.repository.ChatRepository
+import com.ifredi.chat.data.repository.UserRepository
 import java.util.Timer
 import java.util.TimerTask
 import java.util.UUID
 
 class ChatViewModel : ViewModel() {
 
-    private val repository = ChatRepository()
+    private val _partnerUser = MutableLiveData<User?>()
+    val partnerUser: LiveData<User?> = _partnerUser
+
+    private var presenceListener: ListenerRegistration? = null
+
+    private val chatRepository = ChatRepository()
+    private val userRepository = UserRepository()
 
     companion object {
         private const val MAX_MESSAGE_LENGTH = 4000
@@ -37,9 +45,6 @@ class ChatViewModel : ViewModel() {
     private val _chat = MutableLiveData<Chat>()
     val chat: LiveData<Chat> = _chat
 
-    private val _sendingMessage = MutableLiveData<Message?>()
-    val sendingMessage: LiveData<Message?> = _sendingMessage
-
     private var currentUserId = ""
     private var chatId = ""
     private var chatPartnerId = ""
@@ -49,33 +54,51 @@ class ChatViewModel : ViewModel() {
     private var chatListener: ListenerRegistration? = null
     private var typingListener: ListenerRegistration? = null
 
-    // Inicializa el ViewModel con el ID del usuario actual y el ID del chat
     fun initialize(userId: String, chatId: String) {
         this.currentUserId = userId
         this.chatId = chatId
         _isLoading.value = true
 
-        messagesListener = repository.getMessagesRealtime(chatId) { messageList ->
+        messagesListener = chatRepository.getMessagesRealtime(chatId) { messageList ->
             _isLoading.value = false
             _messages.value = messageList
-        }
 
-        chatListener = repository.getChatRealtime(chatId) { chatData ->
-            if (chatData != null) {
-                _chat.value = chatData
-                chatPartnerId = chatData.getOtherUserId(userId) ?: ""
+            // Automatically mark partner's unread messages as read while in the chat
+            messageList.forEach { message ->
+                if (message.senderId != currentUserId && !message.isRead) {
+                    chatRepository.markMessageAsRead(chatId, message.id)
+                }
             }
         }
 
-        if (chatPartnerId.isNotEmpty()) {
-            observePartnerTyping()
+        chatListener = chatRepository.getChatRealtime(chatId) { chatData ->
+            if (chatData != null) {
+                _chat.value = chatData
+                val newPartnerId = chatData.getOtherUserId(userId) ?: ""
+
+                // Only attach observers if the partner ID is found and changed/initialized
+                if (chatPartnerId != newPartnerId) {
+                    chatPartnerId = newPartnerId
+                    if (chatPartnerId.isNotEmpty()) {
+                        observePartnerTyping()
+                        observePartnerPresence() // Start listening to their user document
+                    }
+                }
+            }
         }
     }
 
     private fun observePartnerTyping() {
         typingListener?.remove()
-        typingListener = repository.observeTypingStatus(chatId, chatPartnerId) { isTyping ->
+        typingListener = chatRepository.observeTypingStatus(chatId, chatPartnerId) { isTyping ->
             _isUserTyping.value = isTyping
+        }
+    }
+
+    private fun observePartnerPresence() {
+        presenceListener?.remove()
+        presenceListener = userRepository.observeUserPresence(chatPartnerId) { user ->
+            _partnerUser.value = user
         }
     }
 
@@ -112,10 +135,7 @@ class ChatViewModel : ViewModel() {
             type = if (imageUrl != null) MessageType.IMAGE else MessageType.TEXT
         )
 
-        _sendingMessage.value = message
-
-        repository.sendMessage(chatId, message) { success ->
-            _sendingMessage.value = null
+        chatRepository.sendMessage(chatId, message) { success ->
             if (!success) {
                 _errorMessage.value = "No se pudo enviar el mensaje"
             }
@@ -126,13 +146,13 @@ class ChatViewModel : ViewModel() {
     fun sendTypingIndicator() {
         if (currentUserId.isEmpty() || chatId.isEmpty()) return
 
-        repository.updateTypingStatus(chatId, currentUserId, true)
+        chatRepository.updateTypingStatus(chatId, currentUserId, true)
 
         typingTimer?.cancel()
         typingTimer = Timer().apply {
             schedule(object : TimerTask() {
                 override fun run() {
-                    repository.updateTypingStatus(chatId, currentUserId, false)
+                    chatRepository.updateTypingStatus(chatId, currentUserId, false)
                 }
             }, TYPING_DEBOUNCE_MS)
         }
@@ -144,20 +164,10 @@ class ChatViewModel : ViewModel() {
             _errorMessage.value = "Solo puedes eliminar tus propios mensajes"
             return
         }
-        repository.deleteMessage(chatId, message.id) { success ->
+        chatRepository.deleteMessage(chatId, message.id) { success ->
             if (!success) {
                 _errorMessage.value = "No se pudo eliminar el mensaje"
             }
-        }
-    }
-
-    // Marca los mensajes como leídos si no son del usuario actual
-    fun markChatAsRead() {
-        val unreadMessages = _messages.value.orEmpty().filter {
-            !it.isRead && it.senderId != currentUserId
-        }
-        unreadMessages.forEach { message ->
-            repository.markMessageAsRead(chatId, message.id)
         }
     }
 
@@ -168,7 +178,7 @@ class ChatViewModel : ViewModel() {
     // Sube una imagen al chat y devuelve la URL de la imagen subida a través del callback
     fun uploadImage(imageUri: android.net.Uri, callback: (String?) -> Unit) {
         _isLoading.value = true
-        repository.uploadImage(imageUri, chatId) { url ->
+        chatRepository.uploadImage(imageUri, chatId) { url ->
             _isLoading.value = false
             if (url == null) {
                 _errorMessage.value = "No se pudo subir la imagen"
@@ -192,13 +202,10 @@ class ChatViewModel : ViewModel() {
 
     // Limpia los recursos y actualiza el estado en línea del usuario cuando el ViewModel se destruye
     override fun onCleared() {
-        super.onCleared()
         messagesListener?.remove()
         chatListener?.remove()
         typingListener?.remove()
+        presenceListener?.remove() // Prevent memory leaks
         typingTimer?.cancel()
-        if (currentUserId.isNotEmpty()) {
-            repository.updateUserOnlineStatus(currentUserId, false)
-        }
     }
 }

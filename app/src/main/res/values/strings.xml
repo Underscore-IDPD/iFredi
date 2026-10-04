@@ -13,9 +13,11 @@
 
     <string name="write_message">Escribe un mensaje…</string>
     <string name="send">Enviar</string>
+    <string name="copy">Copiar Mensaje</string>
+    <string name="delete">Eliminar</string>">
     <string name="attach_image">Adjuntar imagen</string>
 
-    <string name="typing">%s está escribiendo…</string>
+    <string name="typing">$chatPartnerName está escribiendo…</string>
     <string name="online">En línea</string>
     <string name="offline">Desconectado</string>
     <string name="empty_message">No puedes enviar un mensaje vacío</string>
@@ -39,5 +41,7 @@
     <string name="username">Nombre de usuario</string>
     <string name="accent_color">Color de acento</string>
     <string name="save">Guardar</string>
+
+    <string name="image">Imagen Completa</string>
 
 </resources>

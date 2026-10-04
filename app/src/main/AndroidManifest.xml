@@ -4,6 +4,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
+        android:name=".App"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher_round"
@@ -27,6 +28,11 @@
         <activity
             android:name=".ui.activity.ChatActivity"
             android:exported="false" />
+
+        <activity
+            android:name=".ui.activity.FullScreenImageActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
 
         <activity
             android:name=".ui.activity.SettingsActivity"

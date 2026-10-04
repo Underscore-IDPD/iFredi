@@ -10,6 +10,7 @@ import com.google.firebase.storage.FirebaseStorage
 import com.ifredi.chat.data.Chat
 import com.ifredi.chat.data.ChatType
 import com.ifredi.chat.data.Message
+import com.ifredi.chat.data.MessageStatus
 import com.ifredi.chat.data.User
 import java.util.UUID
 
@@ -17,7 +18,6 @@ class ChatRepository {
 
     private val db = FirebaseFirestore.getInstance()
     private val storage = FirebaseStorage.getInstance()
-    private val auth = FirebaseAuth.getInstance()
 
     companion object {
         private const val TAG = "ChatRepository"
@@ -61,7 +61,6 @@ class ChatRepository {
             .document(message.id)
 
         val chatRef = db.collection(COLLECTION_CHATS).document(chatId)
-
         val preview = if (message.isImage()) "Imagen" else message.text
 
         val batch = db.batch()
@@ -77,7 +76,11 @@ class ChatRepository {
         )
 
         batch.commit()
-            .addOnSuccessListener { callback(true) }
+            .addOnSuccessListener {
+                // Update the message status to SENT (one checkmark) now that it reached the server
+                messageRef.update("status", MessageStatus.SENT.name)
+                callback(true)
+            }
             .addOnFailureListener { e ->
                 Log.e(TAG, "sendMessage error", e)
                 callback(false)
@@ -146,7 +149,6 @@ class ChatRepository {
     fun getUserChats(userId: String, callback: (List<Chat>) -> Unit): ListenerRegistration {
         return db.collection(COLLECTION_CHATS)
             .whereArrayContains("participants", userId)
-            .orderBy("lastMessageTime", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
                     Log.e(TAG, "getUserChats error", error)
@@ -155,6 +157,7 @@ class ChatRepository {
                 }
                 val chats = snapshot?.documents
                     ?.mapNotNull { it.toObject(Chat::class.java) }
+                    ?.sortedByDescending { it.lastMessageTime }
                     ?: emptyList()
                 callback(chats)
             }
@@ -228,24 +231,6 @@ class ChatRepository {
             }
     }
 
-    fun ensureUserDocument(userId: String, email: String, callback: (Boolean) -> Unit) {
-        val ref = db.collection(COLLECTION_USERS).document(userId)
-        ref.get()
-            .addOnSuccessListener { snap ->
-                if (snap.exists()) { callback(true); return@addOnSuccessListener }
-                val now = System.currentTimeMillis()
-                val user = User(
-                    id = userId, email = email,
-                    displayName = email.substringBefore("@"),
-                    createdAt = now, updatedAt = now
-                )
-                ref.set(user)
-                    .addOnSuccessListener { callback(true) }
-                    .addOnFailureListener { e -> Log.e(TAG, "ensureUserDocument set error", e); callback(false) }
-            }
-            .addOnFailureListener { e -> Log.e(TAG, "ensureUserDocument get error", e); callback(false) }
-    }
-
     // Retorna un chat específico en tiempo real
     fun getChatRealtime(chatId: String, callback: (Chat?) -> Unit): ListenerRegistration {
         return db.collection(COLLECTION_CHATS)
@@ -274,19 +259,6 @@ class ChatRepository {
             .addOnFailureListener { e -> Log.e(TAG, "updateTypingStatus error", e) }
     }
 
-    // Marca si el usuario está en línea o no, y actualiza la última vez que estuvo activo
-    fun updateUserOnlineStatus(userId: String, isOnline: Boolean) {
-        db.collection(COLLECTION_USERS)
-            .document(userId)
-            .update(
-                mapOf(
-                    "isOnline" to isOnline,
-                    "lastSeen" to System.currentTimeMillis()
-                )
-            )
-            .addOnFailureListener { e -> Log.e(TAG, "updateUserOnlineStatus error", e) }
-    }
-
     // Observa en tiempo real si un usuario está escribiendo en un chat específico
     fun observeTypingStatus(
         chatId: String,
@@ -308,34 +280,5 @@ class ChatRepository {
             }
     }
 
-    /**
-     * Busqueda
-     */
 
-    // Busca usuarios por nombre o correo electrónico, retornando un máximo de 10 resultados
-    fun searchUsers(query: String, callback: (List<User>) -> Unit) {
-        val normalized = query.trim().lowercase()
-        if (normalized.isEmpty()) {
-            callback(emptyList())
-            return
-        }
-
-        db.collection(COLLECTION_USERS)
-            .orderBy("displayName")
-            .get()
-            .addOnSuccessListener { snapshot ->
-                val results = snapshot.documents
-                    .mapNotNull { it.toObject(User::class.java) }
-                    .filter {
-                        it.displayName.lowercase().contains(normalized) ||
-                                it.email.lowercase().contains(normalized)
-                    }
-                    .take(10)
-                callback(results)
-            }
-            .addOnFailureListener { e ->
-                Log.e(TAG, "searchUsers error", e)
-                callback(emptyList())
-            }
-    }
 }

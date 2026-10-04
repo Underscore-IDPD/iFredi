@@ -8,10 +8,13 @@ import com.google.firebase.firestore.ListenerRegistration
 import com.ifredi.chat.data.Chat
 import com.ifredi.chat.data.User
 import com.ifredi.chat.data.repository.ChatRepository
+import com.ifredi.chat.data.repository.UserRepository
 
 class MainViewModel : ViewModel() {
 
-    private val repository = ChatRepository()
+    private val chatRepository = ChatRepository()
+
+    private val userRepository = UserRepository()
 
     data class ChatTarget(val chatId: String, val partnerId: String, val partnerName: String)
 
@@ -40,23 +43,23 @@ class MainViewModel : ViewModel() {
         currentUserId = userId
         _isLoading.value = true
 
-        repository.ensureUserDocument(userId, email) { ok ->
+        userRepository.ensureUserDocument(userId, email) { ok ->
             userReady = ok
             if (ok) {
-                repository.updateUserOnlineStatus(userId, true)
+                userRepository.updateUserOnlineStatus(userId, true)
             } else {
                 _errorMessage.value = "No se pudo cargar tu perfil"
             }
         }
 
-        chatsListener = repository.getUserChats(userId) { list ->
+        chatsListener = chatRepository.getUserChats(userId) { list ->
             _isLoading.value = false
             _chats.value = list
         }
     }
 
     fun setOnline(online: Boolean) {
-        if (userReady) repository.updateUserOnlineStatus(currentUserId, online)
+        if (userReady) userRepository.updateUserOnlineStatus(currentUserId, online)
     }
 
     /**
@@ -70,14 +73,14 @@ class MainViewModel : ViewModel() {
             _searchResults.value = emptyList()
             return
         }
-        repository.searchUsers(q) { users ->
-            if (q != latestQuery) return@searchUsers // llegó una respuesta vieja
+        userRepository.searchUsers(q) { users ->
+            if (q != latestQuery) return@searchUsers
             _searchResults.value = users.filter { it.id != currentUserId }
         }
     }
 
     fun startChatWith(user: User) {
-        repository.createPrivateChat(currentUserId, user.id) { chatId ->
+        chatRepository.createPrivateChat(currentUserId, user.id) { chatId ->
             if (chatId == null) {
                 _errorMessage.value = "No se pudo abrir el chat"
             } else {

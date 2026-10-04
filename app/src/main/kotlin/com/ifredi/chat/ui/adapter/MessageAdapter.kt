@@ -15,7 +15,9 @@ import com.ifredi.chat.databinding.MessageItemBinding
 
 class MessageAdapter(
     private val currentUserId: String,
-    private val onMessageLongClick: (Message) -> Unit = {}
+    private val onMessageLongClick: (Message) -> Unit = {},
+    private val onImageClick: (String) -> Unit = {}
+
 ) : ListAdapter<Message, MessageAdapter.MessageViewHolder>(MessageDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MessageViewHolder {
@@ -98,8 +100,13 @@ class MessageAdapter(
                     .error(R.drawable.ic_broken_image)
                     .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
                     .into(imageView)
+
+                imageView.setOnClickListener {
+                    message.imageUrl?.let { url -> onImageClick(url) }
+                }
             } else {
                 imageView.visibility = View.GONE
+                imageView.setOnClickListener(null)
             }
         }
 

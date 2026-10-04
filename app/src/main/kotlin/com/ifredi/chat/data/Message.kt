@@ -1,4 +1,7 @@
 package com.ifredi.chat.data
+
+import com.google.firebase.firestore.Exclude
+import com.google.firebase.firestore.PropertyName
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -12,22 +15,28 @@ data class Message(
     val text: String = "",
     val imageUrl: String? = null,
     val timestamp: Long = 0L,
-    val isRead: Boolean = false,
+
+    // Force Firestore to map this exactly to "isRead"
+    @get:PropertyName("isRead")
+    @set:PropertyName("isRead")
+    var isRead: Boolean = false,
+
     val readAt: Long? = null,
     val status: MessageStatus = MessageStatus.PENDING,
     val type: MessageType = MessageType.TEXT
 ) {
 
-    // Verifica si el mensaje fue enviado por el usuario actual
+    // Exclude helper functions so they aren't saved to the database
+    @Exclude
     fun isOwn(userId: String): Boolean = senderId == userId
 
-    // Retorna true si el mensaje contiene una imagen
+    @Exclude
     fun isImage(): Boolean = type == MessageType.IMAGE && !imageUrl.isNullOrBlank()
 
-    // Retorna true si el mensaje es un mensaje del sistema
+    @Exclude
     fun isSystem(): Boolean = type == MessageType.SYSTEM
 
-    // Retorna la hora de envío formateada como HH:mm
+    @Exclude
     fun getFormattedTime(): String {
         val formatter = SimpleDateFormat("HH:mm", Locale.getDefault())
         return formatter.format(Date(timestamp))
@@ -35,15 +44,28 @@ data class Message(
 }
 
 enum class MessageStatus {
+
     PENDING,
+
     SENT,
+
     DELIVERED,
+
     READ,
+
     FAILED
+
 }
 
+
+
 enum class MessageType {
+
     TEXT,
+
     IMAGE,
+
     SYSTEM
+
 }
+

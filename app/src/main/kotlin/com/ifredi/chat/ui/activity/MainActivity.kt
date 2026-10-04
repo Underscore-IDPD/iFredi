@@ -52,16 +52,6 @@ class MainActivity : AppCompatActivity() {
         viewModel.initialize(currentUserId, user.email.orEmpty())
     }
 
-    override fun onStart() {
-        super.onStart()
-        if (currentUserId.isNotEmpty()) viewModel.setOnline(true)
-    }
-
-    override fun onStop() {
-        super.onStop()
-        if (currentUserId.isNotEmpty()) viewModel.setOnline(false)
-    }
-
     /**
      * Menú
      */

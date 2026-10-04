@@ -1,5 +1,6 @@
 package com.ifredi.chat.ui.activity
 
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
@@ -13,12 +14,15 @@ import com.ifredi.chat.R
 import com.ifredi.chat.databinding.ActivityChatBinding
 import com.ifredi.chat.ui.adapter.MessageAdapter
 import com.ifredi.chat.ui.viewmodel.ChatViewModel
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.ifredi.chat.databinding.DialogMessageOptionsBinding
 
 class ChatActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityChatBinding
     private lateinit var viewModel: ChatViewModel
     private lateinit var messageAdapter: MessageAdapter
+
 
     private var currentUserId: String = ""
     private var chatPartnerId: String = ""
@@ -67,13 +71,6 @@ class ChatActivity : AppCompatActivity() {
         viewModel.initialize(currentUserId, chatId)
     }
 
-    override fun onStart() {
-        super.onStart()
-        if (currentUserId.isNotEmpty()) {
-            viewModel.markChatAsRead()
-        }
-    }
-
     override fun onPause() {
         super.onPause()
         // El estado offline definitivo se marca en onCleared() del ViewModel
@@ -113,9 +110,19 @@ class ChatActivity : AppCompatActivity() {
 
     // Inicializa el adapter y el layout manager del RecyclerView
     private fun setupRecyclerView() {
-        messageAdapter = MessageAdapter(currentUserId) { message ->
-            showMessageOptions(message)
-        }
+        messageAdapter = MessageAdapter(
+            currentUserId = currentUserId,
+            onMessageLongClick = { message ->
+                showMessageOptions(message)
+            },
+            onImageClick = { imageUrl ->
+                val intent = Intent(this, FullScreenImageActivity::class.java).apply {
+                    putExtra(FullScreenImageActivity.EXTRA_IMAGE_URL, imageUrl)
+                }
+                startActivity(intent)
+            }
+        )
+
         binding.rvMessages.apply {
             layoutManager = LinearLayoutManager(this@ChatActivity).apply {
                 stackFromEnd = true
@@ -136,7 +143,7 @@ class ChatActivity : AppCompatActivity() {
         viewModel.isUserTyping.observe(this) { isTyping ->
             binding.tvTypingIndicator.visibility =
                 if (isTyping) android.view.View.VISIBLE else android.view.View.GONE
-            binding.tvTypingIndicator.text = "$chatPartnerName está escribiendo..."
+            binding.tvTypingIndicator.text = if (isTyping) getString(R.string.typing) else ""
         }
 
         viewModel.isLoading.observe(this) { loading ->
@@ -154,6 +161,20 @@ class ChatActivity : AppCompatActivity() {
         viewModel.chat.observe(this) { chat ->
             binding.tvPartnerName.text = chat.getDisplayName(currentUserId)
             // El avatar real
+        }
+
+        viewModel.partnerUser.observe(this) { user ->
+            if (user != null) {
+                // Update the status text dynamically
+                binding.tvPartnerStatus.text = if (user.isActive()) {
+                    "En línea"
+                } else {
+                    getString(R.string.offline) // Or format user.lastSeen for "Última vez..."
+                }
+
+                // Update the avatar
+                bindPartnerAvatar(user.profileImageUrl)
+            }
         }
     }
 
@@ -201,14 +222,21 @@ class ChatActivity : AppCompatActivity() {
     private fun showMessageOptions(message: com.ifredi.chat.data.Message) {
         if (!message.isOwn(currentUserId)) return
 
-        androidx.appcompat.app.AlertDialog.Builder(this)
-            .setItems(arrayOf("Eliminar", "Copiar")) { _, which ->
-                when (which) {
-                    0 -> viewModel.deleteMessage(message)
-                    1 -> copyToClipboard(message.text)
-                }
-            }
-            .show()
+        val dialog = BottomSheetDialog(this)
+        val sheetBinding = DialogMessageOptionsBinding.inflate(layoutInflater)
+        dialog.setContentView(sheetBinding.root)
+
+        sheetBinding.btnCopy.setOnClickListener {
+            copyToClipboard(message.text)
+            dialog.dismiss()
+        }
+
+        sheetBinding.btnDelete.setOnClickListener {
+            viewModel.deleteMessage(message)
+            dialog.dismiss()
+        }
+
+        dialog.show()
     }
 
     // Copia el texto del mensaje al portapapeles

@@ -1,5 +1,7 @@
 package com.ifredi.chat.data
 
+import com.google.firebase.firestore.PropertyName
+
 data class User(
     val id: String = "",
     val email: String = "",
@@ -9,7 +11,9 @@ data class User(
     val lastSeen: Long = 0L,
     val phoneNumber: String? = null,
     val bio: String? = null,
-    val isOnline: Boolean = false,
+    @get:PropertyName("isOnline")
+    @set:PropertyName("isOnline")
+    var isOnline: Boolean = false,
     val createdAt: Long = 0L,
     val updatedAt: Long = 0L
 ) {
