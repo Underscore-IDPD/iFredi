@@ -1,7 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">IFredi</string>
+    <string name="app_name">iFredi</string>
+
+
+    <string name="search_hint">Buscar personas por nombre o correo</string>
+    <string name="no_chats">Aún no tienes conversaciones.\nBusca a alguien para empezar.</string>
+    <string name="no_results">Sin resultados</string>
+    <string name="no_messages_yet">Sin mensajes aún</string>
+    <string name="log_out">Cerrar sesión</string>
+
 
     <string name="write_message">Escribe un mensaje…</string>
     <string name="send">Enviar</string>

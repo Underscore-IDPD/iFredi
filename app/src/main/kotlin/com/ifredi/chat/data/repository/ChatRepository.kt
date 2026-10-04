@@ -228,6 +228,24 @@ class ChatRepository {
             }
     }
 
+    fun ensureUserDocument(userId: String, email: String, callback: (Boolean) -> Unit) {
+        val ref = db.collection(COLLECTION_USERS).document(userId)
+        ref.get()
+            .addOnSuccessListener { snap ->
+                if (snap.exists()) { callback(true); return@addOnSuccessListener }
+                val now = System.currentTimeMillis()
+                val user = User(
+                    id = userId, email = email,
+                    displayName = email.substringBefore("@"),
+                    createdAt = now, updatedAt = now
+                )
+                ref.set(user)
+                    .addOnSuccessListener { callback(true) }
+                    .addOnFailureListener { e -> Log.e(TAG, "ensureUserDocument set error", e); callback(false) }
+            }
+            .addOnFailureListener { e -> Log.e(TAG, "ensureUserDocument get error", e); callback(false) }
+    }
+
     // Retorna un chat específico en tiempo real
     fun getChatRealtime(chatId: String, callback: (Chat?) -> Unit): ListenerRegistration {
         return db.collection(COLLECTION_CHATS)
