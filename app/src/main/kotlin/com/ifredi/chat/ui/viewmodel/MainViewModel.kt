@@ -3,7 +3,6 @@ package com.ifredi.chat.ui.viewmodel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ListenerRegistration
 import com.ifredi.chat.data.Chat
 import com.ifredi.chat.data.User
@@ -11,12 +10,14 @@ import com.ifredi.chat.data.repository.ChatRepository
 import com.ifredi.chat.data.repository.UserRepository
 import android.os.Handler
 import android.os.Looper
+import com.ifredi.chat.data.repository.AuthRepository
 
 class MainViewModel : ViewModel() {
 
     private val chatRepository = ChatRepository()
 
     private val userRepository = UserRepository()
+    private val authRepository = AuthRepository()
 
     data class ChatTarget(val chatId: String, val partnerId: String, val partnerName: String)
 
@@ -54,10 +55,6 @@ class MainViewModel : ViewModel() {
             _isLoading.value = false
             _chats.value = list
         }
-    }
-
-    fun setOnline(online: Boolean) {
-        if (userReady) userRepository.updateUserOnlineStatus(currentUserId, online)
     }
 
     /**
@@ -111,7 +108,7 @@ class MainViewModel : ViewModel() {
                 userReady = false
                 chatsListener?.remove()
                 userRepository.deleteDeviceToken()
-                FirebaseAuth.getInstance().signOut()
+                authRepository.signOut()
                 onDone()
             }
         }

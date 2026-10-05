@@ -4,20 +4,23 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.google.firebase.auth.FirebaseAuth
 import com.ifredi.chat.databinding.ActivityLoginBinding
 import androidx.core.text.HtmlCompat
+import androidx.lifecycle.ViewModelProvider
 import com.ifredi.chat.R
+import com.ifredi.chat.ui.viewmodel.AuthState
+import com.ifredi.chat.ui.viewmodel.AuthViewModel
 
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLoginBinding
-    private val auth = FirebaseAuth.getInstance()
+    private lateinit var viewModel: AuthViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        viewModel = ViewModelProvider(this)[AuthViewModel::class.java]
 
-        if (auth.currentUser != null) {
+        if (viewModel.isLoggedIn()) {
             goToMain()
             return
         }
@@ -25,36 +28,31 @@ class LoginActivity : AppCompatActivity() {
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-
         binding.title.text = HtmlCompat.fromHtml(
             getText(R.string.name_logo).toString(),
             HtmlCompat.FROM_HTML_MODE_COMPACT
         )
 
         binding.btnLogin.setOnClickListener {
-            val email = binding.etEmail.text.toString().trim()
-            val password = binding.etPassword.text.toString()
-
-            if (email.isBlank() || password.isBlank()) {
-                Toast.makeText(this, "Completa email y contraseña", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            binding.btnLogin.isEnabled = false
-            auth.signInWithEmailAndPassword(email, password)
-                .addOnSuccessListener { goToMain() }
-                .addOnFailureListener { e ->
-                    binding.btnLogin.isEnabled = true
-                    Toast.makeText(
-                        this,
-                        "No se pudo iniciar sesión: ${e.localizedMessage}",
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
+            viewModel.login(
+                binding.etEmail.text.toString(),
+                binding.etPassword.text.toString()
+            )
         }
-
         binding.tvCreateAccount.setOnClickListener {
             startActivity(Intent(this, RegisterActivity::class.java))
+        }
+
+        viewModel.state.observe(this) { state ->
+            binding.btnLogin.isEnabled = state !is AuthState.Loading
+            when (state) {
+                is AuthState.Success -> goToMain()
+                is AuthState.Error -> {
+                    Toast.makeText(this, state.message, Toast.LENGTH_LONG).show()
+                    viewModel.resetState()
+                }
+                else -> Unit
+            }
         }
     }
 
