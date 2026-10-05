@@ -146,6 +146,7 @@ class ChatRepository {
 
     // Elimina un mensaje del chat
     fun deleteMessage(chatId: String, messageId: String, callback: (Boolean) -> Unit) {
+
         db.collection(COLLECTION_CHATS)
             .document(chatId)
             .collection(COLLECTION_MESSAGES)
@@ -156,6 +157,38 @@ class ChatRepository {
                 Log.e(TAG, "deleteMessage error", e)
                 callback(false)
             }
+    }
+
+    // Recalcula el resumen del chat (lastMessage, hora, remitente) con el mensaje más reciente que quede
+    fun refreshLastMessage(chatId: String) {
+        val chatRef = db.collection(COLLECTION_CHATS).document(chatId)
+
+        messagesRef(chatId)
+            .orderBy("timestamp", Query.Direction.DESCENDING)
+            .limit(1)
+            .get()
+            .addOnSuccessListener { snapshot ->
+                val last = snapshot.documents.firstOrNull()?.toObject(Message::class.java)
+
+                val update: Map<String, Any> = if (last == null) {
+                    // No queda ningún mensaje: se limpia el resumen pero se conserva
+                    // lastMessageTime para que el chat no se hunda al final de la lista
+                    mapOf(
+                        "lastMessage" to "",
+                        "lastMessageSenderId" to FieldValue.delete()
+                    )
+                } else {
+                    mapOf(
+                        "lastMessage" to if (last.isImage()) "Imagen" else last.text,
+                        "lastMessageTime" to last.timestamp,
+                        "lastMessageSenderId" to last.senderId
+                    )
+                }
+
+                chatRef.update(update)
+                    .addOnFailureListener { e -> Log.e(TAG, "refreshLastMessage update error", e) }
+            }
+            .addOnFailureListener { e -> Log.e(TAG, "refreshLastMessage query error", e) }
     }
 
     /**

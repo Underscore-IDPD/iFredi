@@ -257,6 +257,10 @@ class ChatViewModel : ViewModel() {
                 _errorMessage.value = "No se pudo eliminar el mensaje"
             }
             else if (olderMessages.removeAll { it.id == message.id }) publishMessages()
+
+            if (message.timestamp == _chat.value?.lastMessageTime) {
+                chatRepository.refreshLastMessage(chatId)
+            }
         }
     }
 

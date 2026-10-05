@@ -171,24 +171,11 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="25e3b605-9bc9-4e24-81cd-1effd818bf56" name="Changes" comment="feat(ui): Revised MainActivity UI and search behavior">
-      <change afterPath="$PROJECT_DIR$/C1.puml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/kotlin/com/ifredi/chat/notification/ChatSession.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/functions/index.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/functions/package-lock.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/functions/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/deploymentTargetSelector.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/deploymentTargetSelector.xml" afterDir="false" />
+    <list default="true" id="25e3b605-9bc9-4e24-81cd-1effd818bf56" name="Changes" comment="feat(firebase): Fixed buggy notification implementation and unseen chat ui">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/com/ifredi/chat/data/Chat.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/com/ifredi/chat/data/Chat.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/com/ifredi/chat/data/User.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/com/ifredi/chat/data/User.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/com/ifredi/chat/data/repository/ChatRepository.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/com/ifredi/chat/data/repository/ChatRepository.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/com/ifredi/chat/data/repository/UserRepository.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/com/ifredi/chat/data/repository/UserRepository.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/com/ifredi/chat/notification/IFrediMessagingService.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/com/ifredi/chat/notification/IFrediMessagingService.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/com/ifredi/chat/notification/NotificationHelper.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/com/ifredi/chat/notification/NotificationHelper.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/com/ifredi/chat/ui/activity/ChatActivity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/com/ifredi/chat/ui/activity/ChatActivity.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/com/ifredi/chat/ui/activity/MainActivity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/com/ifredi/chat/ui/activity/MainActivity.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/com/ifredi/chat/ui/adapter/ChatListAdapter.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/com/ifredi/chat/ui/adapter/ChatListAdapter.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/com/ifredi/chat/ui/viewmodel/ChatViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/com/ifredi/chat/ui/viewmodel/ChatViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/com/ifredi/chat/ui/viewmodel/MainViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/com/ifredi/chat/ui/viewmodel/MainViewModel.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -715,7 +702,15 @@
       <option name="project" value="LOCAL" />
       <updated>1791213863794</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="feat(firebase): Fixed buggy notification implementation and unseen chat ui">
+      <option name="closed" value="true" />
+      <created>1791232277163</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1791232277163</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -742,7 +737,8 @@
     <MESSAGE value="feat(icon): updated app icon to feature &quot;Dyke&quot; (definitely not Duke's cousin)" />
     <MESSAGE value="fix(auth): Implemented heartbeat logic for online status consistency" />
     <MESSAGE value="feat(ui): Revised MainActivity UI and search behavior" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat(ui): Revised MainActivity UI and search behavior" />
+    <MESSAGE value="feat(firebase): Fixed buggy notification implementation and unseen chat ui" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat(firebase): Fixed buggy notification implementation and unseen chat ui" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
