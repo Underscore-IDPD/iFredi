@@ -178,7 +178,7 @@ class ChatActivity : AppCompatActivity() {
         viewModel.isUserTyping.observe(this) { isTyping ->
             binding.tvTypingIndicator.visibility =
                 if (isTyping) android.view.View.VISIBLE else android.view.View.GONE
-            binding.tvTypingIndicator.text = if (isTyping) getString(R.string.typing) else ""
+            binding.tvTypingIndicator.text = if (isTyping) chatPartnerName + " " + getString(R.string.typing) else ""
         }
 
         viewModel.isLoading.observe(this) { loading ->

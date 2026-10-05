@@ -18,7 +18,7 @@
     <string name="delete">Eliminar</string>">
     <string name="attach_image">Adjuntar imagen</string>
 
-    <string name="typing">$chatPartnerName está escribiendo…</string>
+    <string name="typing">está escribiendo…</string>
     <string name="online">En línea</string>
     <string name="offline">Desconectado</string>
     <string name="empty_message">No puedes enviar un mensaje vacío</string>
