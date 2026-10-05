@@ -45,9 +45,7 @@ class MainViewModel : ViewModel() {
 
         userRepository.ensureUserDocument(userId, email) { ok ->
             userReady = ok
-            if (ok) {
-                userRepository.updateUserOnlineStatus(userId, true)
-            } else {
+            if (!ok) {
                 _errorMessage.value = "No se pudo cargar tu perfil"
             }
         }
