@@ -55,5 +55,9 @@
     <string name="new_chat">Nuevo Chat</string>
     <string name="new_chat_prompt">Nuevo Chat</string>
     <string name="search_users_hint">Busque el nombre o mail del usuario</string>
+    <string name="today">Hoy</string>
+    <string name="yesterday">Ayer</string>
+    <string name="loading_older_messages">Cargando Mensajes Antiguos…</string>
+    <string name="load_older_messages">Cargar Mensajes Antiguos</string>
 
 </resources>

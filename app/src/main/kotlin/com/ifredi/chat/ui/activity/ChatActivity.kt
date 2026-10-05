@@ -6,8 +6,10 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
 import com.ifredi.chat.R
@@ -28,6 +30,10 @@ class ChatActivity : AppCompatActivity() {
     private var chatPartnerId: String = ""
     private var chatPartnerName: String = ""
     private var chatId: String = ""
+
+    private var firstMessageId: String? = null
+    private var lastMessageId: String? = null
+    private var messageCount = 0
 
     companion object {
         const val EXTRA_CHAT_ID = "extra_chat_id"
@@ -134,12 +140,35 @@ class ChatActivity : AppCompatActivity() {
     // Escucha los cambios en los LiveData del ViewModel
     private fun setupViewModelObservers() {
         viewModel.messages.observe(this) { messages ->
-            messageAdapter.setMessages(messages)
-            if (messages.isNotEmpty()) {
-                binding.rvMessages.scrollToPosition(messages.size - 1)
+            val lm = binding.rvMessages.layoutManager as LinearLayoutManager
+            val first = messages.firstOrNull()?.id
+            val last = messages.lastOrNull()?.id
+            val added = messages.size - messageCount
+
+            val prependedOlder = firstMessageId != null && first != firstMessageId &&
+                    last == lastMessageId && added > 0
+            val appendedNewer = last != lastMessageId && messages.isNotEmpty()
+
+            // El ancla se captura ANTES de enviar la lista nueva
+            val anchorPos = lm.findFirstVisibleItemPosition()
+            val anchorTop = if (anchorPos != RecyclerView.NO_POSITION) {
+                lm.findViewByPosition(anchorPos)?.top ?: 0
+            } else 0
+
+            firstMessageId = first
+            lastMessageId = last
+            messageCount = messages.size
+
+            // El scroll se aplica cuando DiffUtil ya terminó de commitear la lista
+            messageAdapter.setMessages(messages) {
+                when {
+                    prependedOlder && anchorPos != RecyclerView.NO_POSITION ->
+                        lm.scrollToPositionWithOffset(anchorPos + added, anchorTop)
+                    appendedNewer ->
+                        binding.rvMessages.scrollToPosition(messages.size - 1)
+                }
             }
         }
-
         viewModel.isUserTyping.observe(this) { isTyping ->
             binding.tvTypingIndicator.visibility =
                 if (isTyping) android.view.View.VISIBLE else android.view.View.GONE
@@ -176,6 +205,15 @@ class ChatActivity : AppCompatActivity() {
                 bindPartnerAvatar(user.profileImageUrl)
             }
         }
+
+        viewModel.canLoadOlder.observe(this) { binding.btnLoadOlder.isVisible = it }
+        viewModel.loadingOlder.observe(this) { loading ->
+            binding.btnLoadOlder.setText(
+                if (loading) R.string.loading_older_messages else R.string.load_older_messages
+            )
+            binding.btnLoadOlder.isEnabled = !loading
+        }
+        binding.btnLoadOlder.setOnClickListener { viewModel.loadOlderMessages() }
     }
 
     // Listeners de los botones y del campo de texto

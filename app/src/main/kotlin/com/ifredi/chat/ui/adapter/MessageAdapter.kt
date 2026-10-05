@@ -12,13 +12,17 @@ import com.ifredi.chat.R
 import com.ifredi.chat.data.Message
 import com.ifredi.chat.data.MessageStatus
 import com.ifredi.chat.databinding.MessageItemBinding
+import com.ifredi.chat.ui.util.DateLabels
 
 class MessageAdapter(
     private val currentUserId: String,
     private val onMessageLongClick: (Message) -> Unit = {},
     private val onImageClick: (String) -> Unit = {}
+) : ListAdapter<MessageAdapter.Row, MessageAdapter.MessageViewHolder>(RowDiffCallback()) {
 
-) : ListAdapter<Message, MessageAdapter.MessageViewHolder>(MessageDiffCallback()) {
+    // Mensaje + si debe mostrar el separador de día arriba.
+    // Al ser parte del item, DiffUtil detecta cuando un header aparece o desaparece.
+    data class Row(val message: Message, val showDateHeader: Boolean)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MessageViewHolder {
         val binding = MessageItemBinding.inflate(
@@ -31,26 +35,36 @@ class MessageAdapter(
         holder.bind(getItem(position))
     }
 
-    // Actualiza la lista de mensajes en el adaptador
-    fun setMessages(messages: List<Message>) {
-        submitList(messages)
+    // onCommitted se ejecuta cuando la lista ya está aplicada al RecyclerView
+    fun setMessages(messages: List<Message>, onCommitted: () -> Unit = {}) {
+        val rows = messages.mapIndexed { i, message ->
+            Row(
+                message = message,
+                showDateHeader = i == 0 ||
+                        !DateLabels.sameDay(messages[i - 1].timestamp, message.timestamp)
+            )
+        }
+        submitList(rows, onCommitted)
     }
 
     inner class MessageViewHolder(
         private val binding: MessageItemBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(message: Message) {
+        fun bind(row: Row) {
+            val message = row.message
             val isOwn = message.isOwn(currentUserId)
+
+            binding.tvDateHeader.visibility = if (row.showDateHeader) View.VISIBLE else View.GONE
+            if (row.showDateHeader) {
+                binding.tvDateHeader.text =
+                    DateLabels.dayLabel(binding.root.context, message.timestamp)
+            }
 
             binding.llSentMessage.visibility = if (isOwn) View.VISIBLE else View.GONE
             binding.llReceivedMessage.visibility = if (isOwn) View.GONE else View.VISIBLE
 
-            if (isOwn) {
-                bindSent(message)
-            } else {
-                bindReceived(message)
-            }
+            if (isOwn) bindSent(message) else bindReceived(message)
 
             itemView.setOnLongClickListener {
                 onMessageLongClick(message)
@@ -119,8 +133,8 @@ class MessageAdapter(
         }
     }
 
-    private class MessageDiffCallback : DiffUtil.ItemCallback<Message>() {
-        override fun areItemsTheSame(old: Message, new: Message) = old.id == new.id
-        override fun areContentsTheSame(old: Message, new: Message) = old == new
+    private class RowDiffCallback : DiffUtil.ItemCallback<Row>() {
+        override fun areItemsTheSame(old: Row, new: Row) = old.message.id == new.message.id
+        override fun areContentsTheSame(old: Row, new: Row) = old == new
     }
 }

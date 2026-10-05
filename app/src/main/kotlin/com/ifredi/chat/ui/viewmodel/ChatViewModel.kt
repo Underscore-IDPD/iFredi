@@ -1,5 +1,6 @@
 package com.ifredi.chat.ui.viewmodel
 
+import android.icu.util.Calendar
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -11,8 +12,9 @@ import com.ifredi.chat.data.MessageType
 import com.ifredi.chat.data.User
 import com.ifredi.chat.data.repository.ChatRepository
 import com.ifredi.chat.data.repository.UserRepository
-import java.util.Timer
-import java.util.TimerTask
+import android.os.Handler
+import android.os.Looper
+import android.os.SystemClock
 import java.util.UUID
 
 class ChatViewModel : ViewModel() {
@@ -27,8 +29,19 @@ class ChatViewModel : ViewModel() {
 
     companion object {
         private const val MAX_MESSAGE_LENGTH = 4000
-        private const val TYPING_DEBOUNCE_MS = 3000L
+        private const val TYPING_DEBOUNCE_MS = 3000L      // sin teclear 3s -> false
+        private const val TYPING_THROTTLE_MS = 2000L      // heartbeat máximo cada 2s
+        private const val PARTNER_TYPING_TTL_MS = 5000L   // sin eventos 5s -> se oculta
+        private const val OLDER_PAGE_SIZE = 30L
     }
+
+    private val mainHandler = Handler(Looper.getMainLooper())
+    private val partnerTypingExpiry = Runnable { _isUserTyping.value = false }
+    private val stopTypingRunnable = Runnable { stopTyping() }
+    private var ignoreFirstTypingEvent = true
+    private var lastTypingSentAt = 0L
+
+
 
     private val _messages = MutableLiveData<List<Message>>()
     val messages: LiveData<List<Message>> = _messages
@@ -48,23 +61,46 @@ class ChatViewModel : ViewModel() {
     private var currentUserId = ""
     private var chatId = ""
     private var chatPartnerId = ""
-    private var typingTimer: Timer? = null
-
     private var messagesListener: ListenerRegistration? = null
     private var chatListener: ListenerRegistration? = null
     private var typingListener: ListenerRegistration? = null
+
+    private var windowStart = 0L
+    private var recentMessages: List<Message> = emptyList()
+    private val olderMessages = mutableListOf<Message>()
+    private var isLoadingOlder = false
+
+    private val _canLoadOlder = MutableLiveData(true)
+    val canLoadOlder: LiveData<Boolean> = _canLoadOlder
+
+    private val _loadingOlder = MutableLiveData(false)
+    val loadingOlder: LiveData<Boolean> = _loadingOlder
+
+    private fun startOfYesterday(): Long = Calendar.getInstance().apply {
+        add(Calendar.DAY_OF_YEAR, -1)
+        set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0)
+        set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
+    }.timeInMillis
+
+    private fun publishMessages() {
+        // recentMessages primero, para que la versión reciente gane si hay duplicados
+        _messages.value = (recentMessages + olderMessages)
+            .distinctBy { it.id }
+            .sortedBy { it.timestamp }
+    }
 
     fun initialize(userId: String, chatId: String) {
         this.currentUserId = userId
         this.chatId = chatId
         _isLoading.value = true
 
-        messagesListener = chatRepository.getMessagesRealtime(chatId) { messageList ->
+        windowStart = startOfYesterday()
+        messagesListener = chatRepository.getRecentMessagesRealtime(chatId, windowStart) { list ->
             _isLoading.value = false
-            _messages.value = messageList
+            recentMessages = list
+            publishMessages()
 
-            // Automatically mark partner's unread messages as read while in the chat
-            messageList.forEach { message ->
+            list.forEach { message ->
                 if (message.senderId != currentUserId && !message.isRead) {
                     chatRepository.markMessageAsRead(chatId, message.id)
                 }
@@ -87,11 +123,21 @@ class ChatViewModel : ViewModel() {
             }
         }
     }
-
     private fun observePartnerTyping() {
         typingListener?.remove()
+        mainHandler.removeCallbacks(partnerTypingExpiry)
+        _isUserTyping.value = false
+        ignoreFirstTypingEvent = true
+
         typingListener = chatRepository.observeTypingStatus(chatId, chatPartnerId) { isTyping ->
-            _isUserTyping.value = isTyping
+            if (ignoreFirstTypingEvent) {
+                // El estado inicial puede ser un true viejo de una sesión muerta
+                ignoreFirstTypingEvent = false
+            } else {
+                mainHandler.removeCallbacks(partnerTypingExpiry)
+                _isUserTyping.value = isTyping
+                if (isTyping) mainHandler.postDelayed(partnerTypingExpiry, PARTNER_TYPING_TTL_MS)
+            }
         }
     }
 
@@ -142,19 +188,44 @@ class ChatViewModel : ViewModel() {
         }
     }
 
+    fun loadOlderMessages() {
+        if (isLoadingOlder || _canLoadOlder.value != true) return
+        isLoadingOlder = true
+        _loadingOlder.value = true
+
+        val before = olderMessages.minOfOrNull { it.timestamp } ?: windowStart
+        chatRepository.getOlderMessages(chatId, before, OLDER_PAGE_SIZE) { page ->
+            isLoadingOlder = false
+            _loadingOlder.value = false
+            if (page == null) {
+                _errorMessage.value = "Necesitas conexión para ver mensajes anteriores"
+            } else {
+                olderMessages.addAll(page)
+                if (page.size < OLDER_PAGE_SIZE) _canLoadOlder.value = false
+                publishMessages()
+            }
+        }
+    }
+
+
     // Notifica que el usuario está escribiendo, con debounce de 3s
     fun sendTypingIndicator() {
         if (currentUserId.isEmpty() || chatId.isEmpty()) return
 
-        chatRepository.updateTypingStatus(chatId, currentUserId, true)
+        val now = SystemClock.elapsedRealtime()
+        if (lastTypingSentAt == 0L || now - lastTypingSentAt >= TYPING_THROTTLE_MS) {
+            lastTypingSentAt = now
+            chatRepository.updateTypingStatus(chatId, currentUserId, true)
+        }
+        mainHandler.removeCallbacks(stopTypingRunnable)
+        mainHandler.postDelayed(stopTypingRunnable, TYPING_DEBOUNCE_MS)
+    }
 
-        typingTimer?.cancel()
-        typingTimer = Timer().apply {
-            schedule(object : TimerTask() {
-                override fun run() {
-                    chatRepository.updateTypingStatus(chatId, currentUserId, false)
-                }
-            }, TYPING_DEBOUNCE_MS)
+    fun stopTyping() {
+        mainHandler.removeCallbacks(stopTypingRunnable)
+        if (lastTypingSentAt != 0L) {
+            lastTypingSentAt = 0L
+            chatRepository.updateTypingStatus(chatId, currentUserId, false)
         }
     }
 
@@ -168,6 +239,7 @@ class ChatViewModel : ViewModel() {
             if (!success) {
                 _errorMessage.value = "No se pudo eliminar el mensaje"
             }
+            else if (olderMessages.removeAll { it.id == message.id }) publishMessages()
         }
     }
 
@@ -206,6 +278,7 @@ class ChatViewModel : ViewModel() {
         chatListener?.remove()
         typingListener?.remove()
         presenceListener?.remove() // Prevent memory leaks
-        typingTimer?.cancel()
+        stopTyping()
+        mainHandler.removeCallbacks(partnerTypingExpiry)
     }
 }

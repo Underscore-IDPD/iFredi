@@ -1,51 +1,131 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             xmlns:app="http://schemas.android.com/apk/res-auto"
-             xmlns:tools="http://schemas.android.com/tools"
-             android:layout_width="match_parent"
-             android:layout_height="wrap_content"
-             android:paddingVertical="@dimen/spacing_xs">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingVertical="@dimen/spacing_xs">
 
-    <LinearLayout
-        android:id="@+id/llReceivedMessage"
+    <!-- Separador de día: fuera de los contenedores enviado/recibido -->
+    <TextView
+        android:id="@+id/tvDateHeader"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="start"
-        android:layout_marginEnd="64dp"
-        android:orientation="horizontal">
+        android:layout_gravity="center_horizontal"
+        android:layout_marginVertical="@dimen/spacing_sm"
+        android:background="@drawable/bg_date_chip"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="4dp"
+        android:textColor="@color/text_secondary"
+        android:textSize="12sp"
+        android:visibility="gone"
+        tools:text="Hoy"
+        tools:visibility="visible" />
 
-        <com.google.android.material.imageview.ShapeableImageView
-            android:id="@+id/ivSenderAvatar"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:layout_gravity="bottom"
-            android:layout_marginEnd="@dimen/spacing_xs"
-            android:background="@drawable/bg_avatar_placeholder"
-            android:padding="6dp"
-            android:scaleType="centerCrop"
-            android:src="@drawable/ic_person"
-            app:shapeAppearanceOverlay="@style/CircleImage" />
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
+        <!-- Mensaje recibido -->
         <LinearLayout
+            android:id="@+id/llReceivedMessage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_gravity="start"
+            android:layout_marginEnd="64dp"
+            android:orientation="horizontal">
 
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/tvSenderName"
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/ivSenderAvatar"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_gravity="bottom"
+                android:layout_marginEnd="@dimen/spacing_xs"
+                android:background="@drawable/bg_avatar_placeholder"
+                android:padding="6dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_person"
+                app:shapeAppearanceOverlay="@style/CircleImage" />
+
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/spacing_sm"
-                android:layout_marginBottom="2dp"
-                android:textColor="@color/primary"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                tools:text="Scarlet" />
+                android:orientation="vertical">
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/tvSenderName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/spacing_sm"
+                    android:layout_marginBottom="2dp"
+                    android:textColor="@color/primary"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    tools:text="Scarlet" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:cardBackgroundColor="@color/bubble_received"
+                    app:cardCornerRadius="@dimen/message_bubble_radius"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="0dp">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingHorizontal="@dimen/message_padding_horizontal"
+                        android:paddingVertical="@dimen/message_padding_vertical">
+
+                        <com.google.android.material.imageview.ShapeableImageView
+                            android:id="@+id/ivReceivedImage"
+                            android:layout_width="@dimen/image_size_small"
+                            android:layout_height="@dimen/image_size_small"
+                            android:layout_marginBottom="@dimen/spacing_xs"
+                            android:scaleType="centerCrop"
+                            android:visibility="gone"
+                            app:shapeAppearanceOverlay="@style/CircleImage"
+                            tools:src="@tools:sample/backgrounds/scenic" />
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/tvReceivedMessage"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/bubble_received_text"
+                            android:textSize="15sp"
+                            tools:text="¡Hola! ¿Cómo estás?" />
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/tvReceivedTime"
+                            style="@style/TextAppearance.Time"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end"
+                            android:layout_marginTop="2dp"
+                            android:textColor="@color/text_muted"
+                            android:textSize="11sp"
+                            tools:text="10:42 AM" />
+
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Mensaje enviado -->
+        <LinearLayout
+            android:id="@+id/llSentMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginStart="64dp"
+            android:orientation="vertical">
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:cardBackgroundColor="@color/bubble_received"
+                app:cardBackgroundColor="@color/bubble_sent"
                 app:cardCornerRadius="@dimen/message_bubble_radius"
                 app:cardElevation="0dp"
                 app:strokeWidth="0dp">
@@ -58,7 +138,7 @@
                     android:paddingVertical="@dimen/message_padding_vertical">
 
                     <com.google.android.material.imageview.ShapeableImageView
-                        android:id="@+id/ivReceivedImage"
+                        android:id="@+id/ivSentImage"
                         android:layout_width="@dimen/image_size_small"
                         android:layout_height="@dimen/image_size_small"
                         android:layout_marginBottom="@dimen/spacing_xs"
@@ -68,98 +148,42 @@
                         tools:src="@tools:sample/backgrounds/scenic" />
 
                     <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/tvReceivedMessage"
+                        android:id="@+id/tvSentMessage"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="@color/bubble_received_text"
+                        android:textColor="@color/bubble_sent_text"
                         android:textSize="15sp"
-                        tools:text="¡Hola! ¿Cómo estás?" />
+                        tools:text="Todo bien por aquí, ¿y tú?" />
 
-                    <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/tvReceivedTime"
-                        style="@style/TextAppearance.Time"
+                    <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="end"
                         android:layout_marginTop="2dp"
-                        android:textColor="@color/text_muted"
-                        android:textSize="11sp"
-                        tools:text="10:42 AM" />
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
 
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/tvSentTime"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/bubble_sent_text"
+                            android:textSize="11sp"
+                            tools:text="10:43 AM" />
+
+                        <ImageView
+                            android:id="@+id/ivSentStatus"
+                            android:layout_width="14dp"
+                            android:layout_height="14dp"
+                            android:layout_marginStart="3dp"
+                            android:contentDescription="@null"
+                            app:tint="@color/bubble_sent_text"
+                            tools:src="@drawable/ic_check" />
+
+                    </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
-    </LinearLayout>
 
-    <!-- Mensaje Enviado -->
-    <LinearLayout
-        android:id="@+id/llSentMessage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="end"
-        android:layout_marginStart="64dp"
-        android:orientation="vertical">
-
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:cardBackgroundColor="@color/bubble_sent"
-            app:cardCornerRadius="@dimen/message_bubble_radius"
-            app:cardElevation="0dp"
-            app:strokeWidth="0dp">
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingHorizontal="@dimen/message_padding_horizontal"
-                android:paddingVertical="@dimen/message_padding_vertical">
-
-                <com.google.android.material.imageview.ShapeableImageView
-                    android:id="@+id/ivSentImage"
-                    android:layout_width="@dimen/image_size_small"
-                    android:layout_height="@dimen/image_size_small"
-                    android:layout_marginBottom="@dimen/spacing_xs"
-                    android:scaleType="centerCrop"
-                    android:visibility="gone"
-                    app:shapeAppearanceOverlay="@style/CircleImage"
-                    tools:src="@tools:sample/backgrounds/scenic" />
-
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/tvSentMessage"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/bubble_sent_text"
-                    android:textSize="15sp"
-                    tools:text="Todo bien por aquí, ¿y tú?" />
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="end"
-                    android:layout_marginTop="2dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/tvSentTime"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/bubble_sent_text"
-                        android:textSize="11sp"
-                        tools:text="10:43 AM" />
-
-                    <ImageView
-                        android:id="@+id/ivSentStatus"
-                        android:layout_width="14dp"
-                        android:layout_height="14dp"
-                        android:layout_marginStart="3dp"
-                        app:tint="@color/bubble_sent_text"
-                        tools:src="@drawable/ic_check" />
-
-                </LinearLayout>
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-    </LinearLayout>
-
-</FrameLayout>
+    </FrameLayout>
+</LinearLayout>

@@ -2,7 +2,7 @@ package com.ifredi.chat.data.repository
 
 import android.net.Uri
 import android.util.Log
-import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.Source
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
@@ -24,32 +24,58 @@ class ChatRepository {
         private const val COLLECTION_USERS = "users"
         private const val COLLECTION_CHATS = "chats"
         private const val COLLECTION_MESSAGES = "messages"
-        private const val MESSAGES_LIMIT = 100L
+
     }
 
     /**
      * Mensajes
      */
-    fun getMessagesRealtime(
-        chatId: String,
-        callback: (List<Message>) -> Unit
-    ): ListenerRegistration {
-        return db.collection(COLLECTION_CHATS)
+    private fun messagesRef(chatId: String) =
+        db.collection(COLLECTION_CHATS)
             .document(chatId)
             .collection(COLLECTION_MESSAGES)
-            .orderBy("timestamp", Query.Direction.DESCENDING)
-            .limit(MESSAGES_LIMIT)
+
+    // Solo mensajes desde sinceMillis (ayer 00:00). Funciona offline desde el caché de Firestore.
+    fun getRecentMessagesRealtime(
+        chatId: String,
+        sinceMillis: Long,
+        callback: (List<Message>) -> Unit
+    ): ListenerRegistration {
+        return messagesRef(chatId)
+            .whereGreaterThanOrEqualTo("timestamp", sinceMillis)
+            .orderBy("timestamp")
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
-                    Log.e(TAG, "getMessagesRealtime error", error)
+                    Log.e(TAG, "getRecentMessagesRealtime error", error)
                     callback(emptyList())
                     return@addSnapshotListener
                 }
-                val messages = snapshot?.documents
-                    ?.mapNotNull { it.toObject(Message::class.java) }
-                    ?.sortedBy { it.timestamp }
-                    ?: emptyList()
-                callback(messages)
+                callback(
+                    snapshot?.documents
+                        ?.mapNotNull { it.toObject(Message::class.java) }
+                        ?: emptyList()
+                )
+            }
+    }
+
+    // Página de mensajes anteriores. Solo servidor: sin conexión falla y devuelve null.
+    fun getOlderMessages(
+        chatId: String,
+        beforeMillis: Long,
+        limit: Long,
+        callback: (List<Message>?) -> Unit
+    ) {
+        messagesRef(chatId)
+            .whereLessThan("timestamp", beforeMillis)
+            .orderBy("timestamp", Query.Direction.DESCENDING)
+            .limit(limit)
+            .get(Source.SERVER)
+            .addOnSuccessListener { snapshot ->
+                callback(snapshot.documents.mapNotNull { it.toObject(Message::class.java) })
+            }
+            .addOnFailureListener { e ->
+                Log.e(TAG, "getOlderMessages error", e)
+                callback(null)
             }
     }
 
