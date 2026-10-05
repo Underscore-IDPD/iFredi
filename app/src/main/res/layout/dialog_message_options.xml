@@ -1,39 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:background="@drawable/bg_bottom_sheet"
-    android:padding="16dp">
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:background="@color/bg_surface"
+              android:orientation="vertical"
+              android:paddingHorizontal="@dimen/spacing_lg"
+              android:paddingTop="@dimen/spacing_md"
+              android:paddingBottom="@dimen/spacing_xl">
 
-    <!-- Optional Drag Handle -->
-    <View
-        android:layout_width="40dp"
-        android:layout_height="4dp"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="12dp"
-        android:background="#CCCCCC" />
+    <com.google.android.material.bottomsheet.BottomSheetDragHandleView
+        android:id="@+id/dragHandle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:tint="@color/text_muted" />
 
-    <TextView
+    <com.google.android.material.textview.MaterialTextView
         android:id="@+id/btnCopy"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:drawablePadding="16dp"
+        android:layout_height="52dp"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:drawablePadding="@dimen/spacing_lg"
+        android:focusable="true"
         android:gravity="center_vertical"
-        android:padding="12dp"
+        android:paddingHorizontal="@dimen/spacing_sm"
         android:text="@string/copy"
+        android:textColor="@color/text_main"
         android:textSize="16sp"
-        android:textColor="?attr/colorOnSurface" />
+        app:drawableStartCompat="@drawable/ic_copy"
+        app:drawableTint="@color/text_main" />
 
-    <TextView
+    <com.google.android.material.textview.MaterialTextView
         android:id="@+id/btnDelete"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:drawablePadding="16dp"
+        android:layout_height="52dp"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:drawablePadding="@dimen/spacing_lg"
+        android:focusable="true"
         android:gravity="center_vertical"
-        android:padding="12dp"
+        android:paddingHorizontal="@dimen/spacing_sm"
         android:text="@string/delete"
+        android:textColor="@color/error"
         android:textSize="16sp"
-        android:textColor="@android:color/holo_red_dark" />
+        app:drawableStartCompat="@drawable/ic_delete"
+        app:drawableTint="@color/error" />
 
 </LinearLayout>

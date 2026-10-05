@@ -1,13 +1,18 @@
 package com.ifredi.chat.ui.activity
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -50,6 +55,10 @@ class MainActivity : AppCompatActivity() {
         setupObservers()
 
         viewModel.initialize(currentUserId, user.email.orEmpty())
+
+        askNotificationPermission()
+
+        fetchAndSaveFcmToken(currentUserId)
     }
 
     /**
@@ -160,6 +169,7 @@ class MainActivity : AppCompatActivity() {
         binding.tvEmpty.setText(if (searching) R.string.no_results else R.string.no_chats)
     }
 
+
     /**
      * Navegación
      */
@@ -179,5 +189,36 @@ class MainActivity : AppCompatActivity() {
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
         )
         finish()
+    }
+
+    /**
+     * Notificaciones
+     */
+
+    // Declarar el launcher para pedir el permiso
+    private val requestNotificationPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (!isGranted) {
+            Toast.makeText(this, "Las notificaciones están desactivadas", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun askNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                requestNotificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+    }
+
+    private fun fetchAndSaveFcmToken(userId: String) {
+        com.google.firebase.messaging.FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                val token = task.result
+                com.google.firebase.firestore.FirebaseFirestore.getInstance()
+                    .collection("users").document(userId).update("fcmToken", token)
+            }
+        }
     }
 }

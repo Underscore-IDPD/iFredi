@@ -1,16 +1,17 @@
 plugins {
-    id("com.android.application") version "9.4.1"
-    id("com.google.gms.google-services") version "4.5.0"
+    id("com.android.application") version "8.6.0"
+    id("org.jetbrains.kotlin.android") version "1.9.24"
+    id("com.google.gms.google-services") version "4.4.2"
 }
 
 android {
     namespace = "com.ifredi.chat"
-    compileSdk = 37
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.ifredi.chat"
         minSdk = 24
-        targetSdk = 37
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
     }
@@ -20,8 +21,12 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_21
-        targetCompatibility = JavaVersion.VERSION_21
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = "17"
     }
 }
 
@@ -30,6 +35,7 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.storage)
     implementation(libs.firebase.auth)
+    implementation(libs.firebase.messaging)
 
     implementation(libs.core.ktx)
     implementation(libs.appcompat)

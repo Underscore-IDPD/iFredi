@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primary">#4D9CFF</color>
+    <color name="primary_light">#0174FF</color>
+    <color name="primary_lighter">#1A2E4D</color>
+    <color name="primary_lightest">#0A192F</color>
+
+    <color name="error">#FF666B</color>
+    <color name="error_light">#3D1416</color>
+
+    <color name="success">#55FF33</color>
+    <color name="success_light">#12330A</color>
+
+    <color name="warning">#FFDA33</color>
+    <color name="warning_light">#332B0A</color>
+
+    <color name="bg_app">#121212</color>
+    <color name="bg_surface">#1E1E1E</color>
+    <color name="bg_card">#242424</color>
+
+    <color name="text_main">#F5F5F5</color>
+    <color name="text_secondary">#B0B0B0</color>
+    <color name="text_muted">#757575</color>
+    <color name="text_on_primary">#121212</color>
+
+    <color name="bubble_sent">#0174FF</color>
+    <color name="bubble_sent_text">#FFFFFF</color>
+    <color name="bubble_received">#2C2C2E</color>
+    <color name="bubble_received_text">#F5F5F5</color>
+    <color name="divider">#2C2C2E</color>
+    <color name="input_background">#1E1E1E</color>
+</resources>

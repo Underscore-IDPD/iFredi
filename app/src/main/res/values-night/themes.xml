@@ -2,11 +2,18 @@
 <resources>
     <style name="Theme.iFredi" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="colorPrimary">@color/primary</item>
-        <item name="colorPrimaryDark">@color/primary</item>
+        <item name="colorPrimaryDark">@color/bg_app</item>
         <item name="colorAccent">@color/primary_light</item>
 
-        <item name="android:windowBackground">#121212</item>
-        <item name="colorSurface">#1E1E1E</item>
-        <item name="android:textColorPrimary">#FFFFFF</item>
+        <item name="android:windowBackground">@color/bg_app</item>
+        <item name="colorSurface">@color/bg_surface</item>
+
+        <item name="android:textColorPrimary">@color/text_main</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
+
+        <item name="colorOnPrimary">@color/text_on_primary</item>
+        <item name="colorOnSurface">@color/text_main</item>
+
+        <item name="android:windowLightStatusBar">false</item>
     </style>
 </resources>

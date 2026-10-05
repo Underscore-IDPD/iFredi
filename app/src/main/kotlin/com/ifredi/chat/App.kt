@@ -7,6 +7,7 @@ import androidx.lifecycle.ProcessLifecycleOwner
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.ifredi.chat.data.repository.UserRepository
+import com.ifredi.chat.notification.NotificationHelper
 
 class App : Application(), DefaultLifecycleObserver {
 
@@ -15,6 +16,8 @@ class App : Application(), DefaultLifecycleObserver {
     override fun onCreate() {
         super<Application>.onCreate()
         ProcessLifecycleOwner.get().lifecycle.addObserver(this)
+
+        NotificationHelper.createNotificationChannel(this)
     }
 
     override fun onStart(owner: LifecycleOwner) {

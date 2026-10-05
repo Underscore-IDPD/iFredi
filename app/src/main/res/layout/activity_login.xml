@@ -1,82 +1,116 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              xmlns:tools="http://schemas.android.com/tools"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              android:background="@color/white"
+              android:background="@color/bg_app"
               android:gravity="center"
               android:orientation="vertical"
               android:padding="@dimen/spacing_lg">
 
     <ImageView
         android:id="@+id/logo"
-        android:contentDescription="@string/app_name"
-        android:layout_marginTop="-24dp"
         android:layout_width="192dp"
         android:layout_height="192dp"
+        android:layout_marginTop="-24dp"
         android:layout_marginBottom="@dimen/spacing_lg"
+        android:contentDescription="@string/app_name"
         android:src="@drawable/dyke" />
 
     <TextView
         android:id="@+id/title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/spacing_xs"
-            android:text="@string/name_logo"
-            android:fontFamily="@font/neuropol"
-            android:textSize="32sp"
-            android:textStyle="bold" />
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/spacing_xs"
+        android:fontFamily="@font/neuropol"
+        android:text="@string/name_logo"
+        android:textColor="@color/text_main"
+        android:textSize="32sp"
+        android:textStyle="bold" />
 
     <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="64dp"
-            android:text="@string/login_subtitle"
-            android:textColor="@color/gray_500"
-            android:textSize="20sp" />
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="48dp"
+        android:text="@string/login_subtitle"
+        android:textColor="@color/text_secondary"
+        android:textSize="18sp" />
 
-    <EditText
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilEmail"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/spacing_md"
+        android:hint="@string/email"
+        app:boxCornerRadiusBottomEnd="16dp"
+        app:boxCornerRadiusBottomStart="16dp"
+        app:boxCornerRadiusTopEnd="16dp"
+        app:boxCornerRadiusTopStart="16dp"
+        app:boxStrokeColor="@color/primary"
+        app:hintTextColor="@color/primary">
+
+        <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etEmail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:autofillHints="emailAddress"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/spacing_md"
-            android:background="@drawable/bg_message_input"
-            android:hint="@string/email"
             android:inputType="textEmailAddress"
-            android:textSize="20sp"
-            android:paddingHorizontal="@dimen/spacing_md"
-            android:paddingVertical="@dimen/spacing_sm" />
+            android:paddingVertical="@dimen/spacing_sm"
+            android:textColor="@color/text_main"
+            android:textSize="16sp" />
 
-    <EditText
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilPassword"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/spacing_lg"
+        android:hint="@string/password"
+        app:boxCornerRadiusBottomEnd="16dp"
+        app:boxCornerRadiusBottomStart="16dp"
+        app:boxCornerRadiusTopEnd="16dp"
+        app:boxCornerRadiusTopStart="16dp"
+        app:boxStrokeColor="@color/primary"
+        app:endIconMode="password_toggle"
+        app:hintTextColor="@color/primary">
+
+        <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etPassword"
-            android:autofillHints="password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/spacing_lg"
-            android:background="@drawable/bg_message_input"
-            android:hint="@string/password"
-            android:textSize="20sp"
+            android:autofillHints="password"
             android:inputType="textPassword"
-            android:paddingHorizontal="@dimen/spacing_md"
-            android:paddingVertical="@dimen/spacing_sm" />
+            android:paddingVertical="@dimen/spacing_sm"
+            android:textColor="@color/text_main"
+            android:textSize="16sp" />
 
-    <Button
-            android:id="@+id/btnLogin"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:background="@drawable/bg_button_send"
-            android:textSize="20sp"
-            android:text="@string/log_in"
-            android:textColor="@color/white"
-            android:textAllCaps="false" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnLogin"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:text="@string/log_in"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        app:backgroundTint="@color/primary"
+        app:cornerRadius="16dp" />
 
     <TextView
-            android:id="@+id/tvCreateAccount"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:layout_marginTop="@dimen/spacing_lg"
-            android:text="@string/create_account"
-            android:textColor="@color/primary" />
+        android:id="@+id/tvCreateAccount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_lg"
+        android:background="?attr/selectableItemBackground"
+        android:padding="8dp"
+        android:text="@string/create_account"
+        android:textColor="@color/primary"
+        android:textSize="16sp"
+        android:textStyle="bold" />
 
 </LinearLayout>

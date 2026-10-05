@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <color name="primary">#0174FF</color>
     <color name="primary_light">#66A3FF</color>
     <color name="primary_lighter">#99C2FF</color>
@@ -9,11 +8,11 @@
     <color name="error">#FF333A</color>
     <color name="error_light">#FF999C</color>
 
-    <color name="success">#55FF33</color>
-    <color name="success_light">#AAFF99</color>
+    <color name="success">#2E7D32</color>
+    <color name="success_light">#E8F5E9</color>
 
-    <color name="warning">#FFDA33</color>
-    <color name="warning_light">#FFE366</color>
+    <color name="warning">#F57C00</color>
+    <color name="warning_light">#FFF3E0</color>
 
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
@@ -24,4 +23,19 @@
     <color name="gray_700">#757575</color>
     <color name="gray_900">#212121</color>
 
+    <color name="bg_app">@color/white</color>
+    <color name="bg_surface">@color/gray_50</color>
+    <color name="bg_card">@color/white</color>
+
+    <color name="text_main">@color/gray_900</color>
+    <color name="text_secondary">@color/gray_700</color>
+    <color name="text_muted">@color/gray_500</color>
+    <color name="text_on_primary">@color/white</color>
+
+    <color name="bubble_sent">@color/primary</color>
+    <color name="bubble_sent_text">@color/white</color>
+    <color name="bubble_received">@color/gray_200</color>
+    <color name="bubble_received_text">@color/gray_900</color>
+    <color name="divider">@color/gray_200</color>
+    <color name="input_background">@color/gray_100</color>
 </resources>
