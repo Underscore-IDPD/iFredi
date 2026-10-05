@@ -5,22 +5,23 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.text.HtmlCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.core.widget.doAfterTextChanged
+import androidx.fragment.app.DialogFragment
 import com.google.firebase.auth.FirebaseAuth
 import com.ifredi.chat.R
 import com.ifredi.chat.databinding.ActivityMainBinding
 import com.ifredi.chat.ui.adapter.ChatListAdapter
-import com.ifredi.chat.ui.adapter.UserSearchAdapter
+import com.ifredi.chat.ui.fragment.NewChatBottomSheet
 import com.ifredi.chat.ui.viewmodel.MainViewModel
 
 class MainActivity : AppCompatActivity() {
@@ -28,7 +29,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var viewModel: MainViewModel
     private lateinit var chatAdapter: ChatListAdapter
-    private lateinit var searchAdapter: UserSearchAdapter
 
     private var currentUserId = ""
     private val searchRunnable = Runnable { viewModel.search(binding.etSearch.text.toString()) }
@@ -48,10 +48,18 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
 
+        binding.title.text = HtmlCompat.fromHtml(
+            getText(R.string.contrast_logo).toString(),
+            HtmlCompat.FROM_HTML_MODE_COMPACT
+        )
+
         viewModel = ViewModelProvider(this)[MainViewModel::class.java]
 
         setupRecyclerViews()
         setupSearch()
+        binding.fabNewChat.setOnClickListener {
+            NewChatBottomSheet().show(supportFragmentManager, NewChatBottomSheet.TAG)
+        }
         setupObservers()
 
         viewModel.initialize(currentUserId, user.email.orEmpty())
@@ -95,41 +103,17 @@ class MainActivity : AppCompatActivity() {
                 partnerName = chat.getDisplayName(currentUserId)
             )
         }
-        searchAdapter = UserSearchAdapter { user -> viewModel.startChatWith(user) }
-
         binding.rvChats.layoutManager = LinearLayoutManager(this)
         binding.rvChats.adapter = chatAdapter
-        binding.rvSearchResults.layoutManager = LinearLayoutManager(this)
-        binding.rvSearchResults.adapter = searchAdapter
     }
 
     // Búsqueda con debounce de 300 ms
     private fun setupSearch() {
-        binding.etSearch.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                binding.etSearch.removeCallbacks(searchRunnable)
-                if (s.isNullOrBlank()) {
-                    viewModel.search("")
-                } else {
-                    binding.etSearch.postDelayed(searchRunnable, 300)
-                }
-                updateUi()
-            }
-            override fun afterTextChanged(s: Editable?) {}
-        })
+        binding.etSearch.doAfterTextChanged { updateUi() }
     }
 
     private fun setupObservers() {
-        viewModel.chats.observe(this) { chats ->
-            chatAdapter.submitList(chats)
-            updateUi()
-        }
-
-        viewModel.searchResults.observe(this) { users ->
-            searchAdapter.submitList(users)
-            updateUi()
-        }
+        viewModel.chats.observe(this) { updateUi() }
 
         viewModel.isLoading.observe(this) { loading ->
             binding.progressBar.isVisible = loading
@@ -146,27 +130,25 @@ class MainActivity : AppCompatActivity() {
         viewModel.openChat.observe(this) { target ->
             if (target != null) {
                 viewModel.consumeOpenChat()
+                (supportFragmentManager.findFragmentByTag(NewChatBottomSheet.TAG) as? DialogFragment)?.dismiss()
                 binding.etSearch.text?.clear()
                 openChat(target.chatId, target.partnerId, target.partnerName)
             }
         }
     }
 
-    // Alterna entre lista de chats y resultados de búsqueda, y muestra el estado vacío
     private fun updateUi() {
-        val searching = !binding.etSearch.text.isNullOrBlank()
-        binding.rvChats.isVisible = !searching
-        binding.rvSearchResults.isVisible = searching
+        val query = binding.etSearch.text?.toString().orEmpty().trim()
+        val all = viewModel.chats.value.orEmpty()
+        val shown = if (query.isEmpty()) all
+        else all.filter { it.getDisplayName(currentUserId).contains(query, ignoreCase = true) }
 
-        val isEmpty = if (searching) {
-            viewModel.searchResults.value.isNullOrEmpty()
-        } else {
-            viewModel.chats.value.isNullOrEmpty()
-        }
+        chatAdapter.submitList(shown)
+
         val loading = viewModel.isLoading.value == true
-
-        binding.tvEmpty.isVisible = isEmpty && !loading
-        binding.tvEmpty.setText(if (searching) R.string.no_results else R.string.no_chats)
+        binding.layoutEmpty.isVisible = shown.isEmpty() && !loading
+        binding.tvEmpty.setText(if (query.isEmpty()) R.string.no_chats else R.string.no_results)
+        binding.tvEmptyHint.isVisible = query.isEmpty()
     }
 
 

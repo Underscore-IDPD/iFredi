@@ -3,4 +3,5 @@
 
     <string name="app_name">iFredi</string>
     <string name="name_logo"><![CDATA[<font color="#0174FF">i</font><font color="#FFFFFF">Fredi</font>]]></string>
+    <string name="contrast_logo"><![CDATA[<font color="#121212">i</font><font color="#FFFFFF">Fredi</font>]]></string>
 </resources>

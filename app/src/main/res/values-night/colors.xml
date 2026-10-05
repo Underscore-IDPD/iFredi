@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="primary">#4D9CFF</color>
-    <color name="primary_light">#0174FF</color>
-    <color name="primary_lighter">#1A2E4D</color>
-    <color name="primary_lightest">#0A192F</color>
+    <color name="primary">#3B82F6</color>
+    <color name="primary_light">#60A5FA</color>
+    <color name="primary_lighter">#1E3A8A</color>
+    <color name="primary_lightest">#0F172A</color>
 
     <color name="error">#FF666B</color>
     <color name="error_light">#3D1416</color>

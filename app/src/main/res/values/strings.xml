@@ -3,6 +3,7 @@
 
     <string name="app_name">iFredi</string>
     <string name="name_logo"><![CDATA[<font color="#0174FF">i</font><font color="#121212">Fredi</font>]]></string>
+    <string name="contrast_logo"><![CDATA[<font color="#FFFFFF">i</font><font color="#121212">Fredi</font>]]></string>
 
     <string name="search_hint">Buscar personas por nombre o correo</string>
     <string name="no_chats">Aún no tienes conversaciones.\nBusca a alguien para empezar.</string>
@@ -50,5 +51,9 @@
     <string name="registering">Creando cuenta…</string>
     <string name="have_account">¿Ya tienes cuenta? Inicia sesión</string>
     <string name="back">Volver</string>
+    <string name="no_chats_hint">No tienes ningún chat. Busca el nombre de tus amigos!</string>
+    <string name="new_chat">Nuevo Chat</string>
+    <string name="new_chat_prompt">Nuevo Chat</string>
+    <string name="search_users_hint">Busque el nombre o mail del usuario</string>
 
 </resources>

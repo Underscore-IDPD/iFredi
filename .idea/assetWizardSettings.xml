@@ -359,8 +359,8 @@
                         <option name="values">
                           <map>
                             <entry key="assetSourceType" value="FILE" />
-                            <entry key="outputName" value="attachment_pin_icon" />
-                            <entry key="sourceFile" value="C:\Users\pc\Downloads\attachment-pin-icon.svg" />
+                            <entry key="outputName" value="ic_add" />
+                            <entry key="sourceFile" value="C:\Users\pc\Downloads\add-icon.svg" />
                           </map>
                         </option>
                       </PersistentState>
