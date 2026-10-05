@@ -9,6 +9,8 @@ import com.ifredi.chat.data.Chat
 import com.ifredi.chat.data.User
 import com.ifredi.chat.data.repository.ChatRepository
 import com.ifredi.chat.data.repository.UserRepository
+import android.os.Handler
+import android.os.Looper
 
 class MainViewModel : ViewModel() {
 
@@ -45,11 +47,9 @@ class MainViewModel : ViewModel() {
 
         userRepository.ensureUserDocument(userId, email) { ok ->
             userReady = ok
-            if (!ok) {
-                _errorMessage.value = "No se pudo cargar tu perfil"
-            }
+            if (ok) userRepository.refreshFcmToken(userId)
+            else _errorMessage.value = "No se pudo cargar tu perfil"
         }
-
         chatsListener = chatRepository.getUserChats(userId) { list ->
             _isLoading.value = false
             _chats.value = list
@@ -99,11 +99,29 @@ class MainViewModel : ViewModel() {
      * Sesión
      */
 
-    fun signOut() {
-        setOnline(false)
-        userReady = false
-        chatsListener?.remove()
-        FirebaseAuth.getInstance().signOut()
+    fun signOut(onDone: () -> Unit) {
+        val uid = currentUserId
+        val handler = Handler(Looper.getMainLooper())
+        var finished = false
+
+        val finish = Runnable {
+            if (!finished) {
+                finished = true
+                handler.removeCallbacksAndMessages(null)
+                userReady = false
+                chatsListener?.remove()
+                userRepository.deleteDeviceToken()
+                FirebaseAuth.getInstance().signOut()
+                onDone()
+            }
+        }
+
+        if (uid.isEmpty() || !userReady) {
+            finish.run()
+            return
+        }
+        handler.postDelayed(finish, 3000)
+        userRepository.markSignedOut(uid) { finish.run() }
     }
 
     override fun onCleared() {

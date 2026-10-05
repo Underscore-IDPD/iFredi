@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -18,6 +19,7 @@ import com.ifredi.chat.ui.adapter.MessageAdapter
 import com.ifredi.chat.ui.viewmodel.ChatViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.ifredi.chat.databinding.DialogMessageOptionsBinding
+import com.ifredi.chat.notification.ChatSession
 
 class ChatActivity : AppCompatActivity() {
 
@@ -77,14 +79,18 @@ class ChatActivity : AppCompatActivity() {
         viewModel.initialize(currentUserId, chatId)
     }
 
-    override fun onPause() {
-        super.onPause()
-        // El estado offline definitivo se marca en onCleared() del ViewModel
+    override fun onStart() {
+        super.onStart()
+        ChatSession.openChatId = chatId
+        NotificationManagerCompat.from(this).cancel(chatId.hashCode())
+        viewModel.onScreenVisible(true)
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        // Los listeners de Firestore se remueven en ChatViewModel.onCleared()
+    override fun onStop() {
+        super.onStop()
+        if (ChatSession.openChatId == chatId) ChatSession.openChatId = null
+        viewModel.onScreenVisible(false)
+        viewModel.stopTyping() // del cambio del indicador "escribiendo"
     }
 
     /**

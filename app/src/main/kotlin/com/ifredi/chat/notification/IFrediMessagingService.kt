@@ -1,25 +1,23 @@
 package com.ifredi.chat.notification
 
-import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import com.ifredi.chat.data.repository.UserRepository
 
 class IFrediMessagingService : FirebaseMessagingService() {
-
-    companion object {
-        private const val TAG = "IFrediMessagingService"
-    }
 
     override fun onMessageReceived(message: RemoteMessage) {
         super.onMessageReceived(message)
 
         val data = message.data
         val chatId = data["chatId"] ?: return
-        val senderId = data["senderId"] ?: ""
+        
+        if (ChatSession.openChatId == chatId) return
+
+        val senderId = data["senderId"].orEmpty()
         val senderName = data["senderName"] ?: "Nuevo mensaje"
-        val text = data["text"] ?: message.notification?.body ?: ""
+        val text = (data["text"] ?: message.notification?.body).orEmpty().ifBlank { "Imagen" }
 
         NotificationHelper.showMessageNotification(
             context = applicationContext,
@@ -32,14 +30,6 @@ class IFrediMessagingService : FirebaseMessagingService() {
 
     override fun onNewToken(token: String) {
         super.onNewToken(token)
-        Log.d(TAG, "Nuevo token FCM: $token")
-
-        val userId = FirebaseAuth.getInstance().currentUser?.uid
-        if (userId != null) {
-            FirebaseFirestore.getInstance()
-                .collection("users")
-                .document(userId)
-                .update("fcmToken", token)
-        }
+        FirebaseAuth.getInstance().currentUser?.uid?.let { UserRepository().saveFcmToken(it, token) }
     }
 }

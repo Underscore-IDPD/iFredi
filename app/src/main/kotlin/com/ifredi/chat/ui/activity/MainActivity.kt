@@ -31,7 +31,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var chatAdapter: ChatListAdapter
 
     private var currentUserId = ""
-    private val searchRunnable = Runnable { viewModel.search(binding.etSearch.text.toString()) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -84,8 +83,7 @@ class MainActivity : AppCompatActivity() {
             true
         }
         R.id.action_logout -> {
-            viewModel.signOut()
-            goToLogin()
+            viewModel.signOut { goToLogin() }
             true
         }
         else -> super.onOptionsItemSelected(item)
@@ -107,7 +105,6 @@ class MainActivity : AppCompatActivity() {
         binding.rvChats.adapter = chatAdapter
     }
 
-    // Búsqueda con debounce de 300 ms
     private fun setupSearch() {
         binding.etSearch.doAfterTextChanged { updateUi() }
     }

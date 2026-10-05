@@ -41,6 +41,9 @@ class ChatViewModel : ViewModel() {
     private var ignoreFirstTypingEvent = true
     private var lastTypingSentAt = 0L
 
+    private var isScreenVisible = false
+
+
 
 
     private val _messages = MutableLiveData<List<Message>>()
@@ -76,6 +79,24 @@ class ChatViewModel : ViewModel() {
     private val _loadingOlder = MutableLiveData(false)
     val loadingOlder: LiveData<Boolean> = _loadingOlder
 
+    fun onScreenVisible(visible: Boolean) {
+        isScreenVisible = visible
+        if (visible) markConversationRead()
+    }
+
+    private fun markConversationRead() {
+        if (!isScreenVisible || currentUserId.isEmpty()) return
+
+        _messages.value.orEmpty().forEach { m ->
+            if (m.senderId != currentUserId && !m.isRead) {
+                chatRepository.markMessageAsRead(chatId, m.id)
+            }
+        }
+        if ((_chat.value?.unreadFor(currentUserId) ?: 0) > 0) {
+            chatRepository.resetUnread(chatId, currentUserId)
+        }
+    }
+
     private fun startOfYesterday(): Long = Calendar.getInstance().apply {
         add(Calendar.DAY_OF_YEAR, -1)
         set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0)
@@ -99,18 +120,14 @@ class ChatViewModel : ViewModel() {
             _isLoading.value = false
             recentMessages = list
             publishMessages()
-
-            list.forEach { message ->
-                if (message.senderId != currentUserId && !message.isRead) {
-                    chatRepository.markMessageAsRead(chatId, message.id)
-                }
-            }
+            markConversationRead()
         }
 
         chatListener = chatRepository.getChatRealtime(chatId) { chatData ->
             if (chatData != null) {
                 _chat.value = chatData
                 val newPartnerId = chatData.getOtherUserId(userId) ?: ""
+                markConversationRead()
 
                 // Only attach observers if the partner ID is found and changed/initialized
                 if (chatPartnerId != newPartnerId) {
@@ -181,7 +198,7 @@ class ChatViewModel : ViewModel() {
             type = if (imageUrl != null) MessageType.IMAGE else MessageType.TEXT
         )
 
-        chatRepository.sendMessage(chatId, message) { success ->
+        chatRepository.sendMessage(chatId, message, chatPartnerId.ifEmpty { null }) { success ->
             if (!success) {
                 _errorMessage.value = "No se pudo enviar el mensaje"
             }

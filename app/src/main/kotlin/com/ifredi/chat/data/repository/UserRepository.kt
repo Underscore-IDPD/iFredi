@@ -5,6 +5,8 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.auth.FirebaseAuth
 import com.ifredi.chat.data.User
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.messaging.FirebaseMessaging
 
 class UserRepository {
 
@@ -114,5 +116,34 @@ class UserRepository {
                 Log.e(TAG, "searchUsers error", e)
                 callback(emptyList())
             }
+    }
+
+    fun saveFcmToken(userId: String, token: String) {
+        db.collection(COLLECTION_USERS).document(userId)
+            .update("fcmToken", token)
+            .addOnFailureListener { e -> Log.e(TAG, "saveFcmToken error", e) }
+    }
+
+    fun refreshFcmToken(userId: String) {
+        FirebaseMessaging.getInstance().token
+            .addOnSuccessListener { token -> saveFcmToken(userId, token) }
+            .addOnFailureListener { e -> Log.e(TAG, "refreshFcmToken error", e) }
+    }
+
+    fun markSignedOut(userId: String, onDone: () -> Unit) {
+        db.collection(COLLECTION_USERS).document(userId)
+            .update(
+                mapOf(
+                    "isOnline" to false,
+                    "lastSeen" to System.currentTimeMillis(),
+                    "fcmToken" to FieldValue.delete()
+                )
+            )
+            .addOnCompleteListener { onDone() }
+    }
+
+    fun deleteDeviceToken() {
+        FirebaseMessaging.getInstance().deleteToken()
+            .addOnFailureListener { e -> Log.e(TAG, "deleteDeviceToken error", e) }
     }
 }

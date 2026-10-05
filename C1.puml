@@ -1,0 +1,28 @@
+@startuml
+!include <C4/C4_Context>
+
+LAYOUT_WITH_LEGEND()
+title Diagrama de Contexto (C1) - iFredi Chat
+
+Person(user, "Usuario", "Persona que chatea con otros usuarios desde su teléfono Android.")
+System(ifredi, "iFredi Chat", "App Android de mensajería 1 a 1: texto, imágenes, estado en línea y notificaciones push.")
+
+System_Ext(auth, "Firebase Authentication", "Cuentas y sesión de usuario.")
+System_Ext(storage, "Cloud Storage", "Almacena las imágenes de los chats.")
+System_Ext(firestore, "Cloud Firestore", "Base de datos en tiempo real: chats, mensajes y usuarios.")
+System_Ext(functions, "Cloud Functions", "Lógica del lado del servidor: reacciona a mensajes nuevos y pide enviar el push.")
+System_Ext(fcm, "Cloud Messaging (FCM)", "Entrega las notificaciones push al dispositivo.")
+
+Lay_R(auth, storage)
+Lay_R(storage, firestore)
+
+Rel_D(user, ifredi, "Envía y recibe mensajes")
+
+Rel_D(ifredi, auth, "Inicia sesión y se registra", "Firebase SDK")
+Rel_D(ifredi, storage, "Sube y descarga imágenes", "Firebase SDK")
+Rel_D(ifredi, firestore, "Guarda mensajes y escucha cambios", "Firebase SDK")
+
+Rel_R(firestore, functions, "Dispara la función al crearse un mensaje", "Evento")
+Rel_R(functions, fcm, "Solicita enviar el push", "Admin SDK")
+Rel_U(fcm, ifredi, "Entrega notificaciones push", "FCM")
+@enduml

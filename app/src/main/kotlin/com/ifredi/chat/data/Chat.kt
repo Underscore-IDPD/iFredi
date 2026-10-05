@@ -15,12 +15,14 @@ data class Chat(
     val lastMessageTime: Long = 0L,
     val lastMessageSenderId: String? = null,
     val unreadCount: Int = 0,
+    val unreadCounts: Map<String, Long> = emptyMap(),
     val createdAt: Long = 0L,
     val updatedAt: Long = 0L,
     val isPinned: Boolean = false,
     val isMuted: Boolean = false
 ) {
 
+    fun unreadFor(userId: String): Int = (unreadCounts[userId] ?: 0L).toInt()
     // Retorna el nombre para mostrar del chat, dependiendo del tipo de chat y del usuario actual
     fun getDisplayName(currentUserId: String): String {
         if (type == ChatType.GROUP) {

@@ -6,12 +6,15 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
-import androidx.annotation.RequiresPermission
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.app.TaskStackBuilder
+import androidx.core.content.ContextCompat
 import com.ifredi.chat.R
 import com.ifredi.chat.ui.activity.ChatActivity
+import com.ifredi.chat.ui.activity.MainActivity
 
 object NotificationHelper {
 
@@ -34,7 +37,6 @@ object NotificationHelper {
         }
     }
 
-    @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     fun showMessageNotification(
         context: Context,
         chatId: String,
@@ -42,19 +44,27 @@ object NotificationHelper {
         senderName: String,
         messageText: String
     ) {
-        val intent = Intent(context, ChatActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
+            != PackageManager.PERMISSION_GRANTED
+        ) return
+
+        createNotificationChannel(context) // idempotente
+
+        val chatIntent = Intent(context, ChatActivity::class.java).apply {
             putExtra(ChatActivity.EXTRA_CHAT_ID, chatId)
             putExtra(ChatActivity.EXTRA_PARTNER_ID, senderId)
             putExtra(ChatActivity.EXTRA_PARTNER_NAME, senderName)
         }
 
-        val pendingIntent = PendingIntent.getActivity(
-            context,
-            chatId.hashCode(),
-            intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
+        // Pila: MainActivity -> ChatActivity, para que "atrás" lleve a la lista
+        val pendingIntent = TaskStackBuilder.create(context)
+            .addNextIntent(Intent(context, MainActivity::class.java))
+            .addNextIntent(chatIntent)
+            .getPendingIntent(
+                chatId.hashCode(),
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
 
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notification)
@@ -62,6 +72,7 @@ object NotificationHelper {
             .setContentTitle(senderName)
             .setContentText(messageText)
             .setStyle(NotificationCompat.BigTextStyle().bigText(messageText))
+            .setCategory(NotificationCompat.CATEGORY_MESSAGE)
             .setAutoCancel(true)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(pendingIntent)

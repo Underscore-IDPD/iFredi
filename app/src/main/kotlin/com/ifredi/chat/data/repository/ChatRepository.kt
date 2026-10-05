@@ -7,6 +7,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
 import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.firestore.FieldValue
 import com.ifredi.chat.data.Chat
 import com.ifredi.chat.data.ChatType
 import com.ifredi.chat.data.Message
@@ -80,7 +81,12 @@ class ChatRepository {
     }
 
     // Envía un mensaje y actualiza la metadata del chat
-    fun sendMessage(chatId: String, message: Message, callback: (Boolean) -> Unit) {
+    fun sendMessage(
+        chatId: String,
+        message: Message,
+        recipientId: String?,
+        callback: (Boolean) -> Unit
+    ) {
         val messageRef = db.collection(COLLECTION_CHATS)
             .document(chatId)
             .collection(COLLECTION_MESSAGES)
@@ -89,21 +95,23 @@ class ChatRepository {
         val chatRef = db.collection(COLLECTION_CHATS).document(chatId)
         val preview = if (message.isImage()) "Imagen" else message.text
 
+        val chatUpdate = mutableMapOf<String, Any>(
+            "lastMessage" to preview,
+            "lastMessageTime" to message.timestamp,
+            "lastMessageSenderId" to message.senderId,
+            "updatedAt" to message.timestamp
+        )
+        if (!recipientId.isNullOrEmpty()) {
+            // La clave con punto actualiza solo el contador de ese usuario
+            chatUpdate["unreadCounts.$recipientId"] = FieldValue.increment(1)
+        }
+
         val batch = db.batch()
         batch.set(messageRef, message)
-        batch.update(
-            chatRef,
-            mapOf(
-                "lastMessage" to preview,
-                "lastMessageTime" to message.timestamp,
-                "lastMessageSenderId" to message.senderId,
-                "updatedAt" to message.timestamp
-            )
-        )
+        batch.update(chatRef, chatUpdate)
 
         batch.commit()
             .addOnSuccessListener {
-                // Update the message status to SENT (one checkmark) now that it reached the server
                 messageRef.update("status", MessageStatus.SENT.name)
                 callback(true)
             }
@@ -111,6 +119,13 @@ class ChatRepository {
                 Log.e(TAG, "sendMessage error", e)
                 callback(false)
             }
+    }
+
+    fun resetUnread(chatId: String, userId: String) {
+        db.collection(COLLECTION_CHATS)
+            .document(chatId)
+            .update("unreadCounts.$userId", 0)
+            .addOnFailureListener { e -> Log.e(TAG, "resetUnread error", e) }
     }
 
     // Marca un mensaje como leído y actualiza su estado a "READ"
